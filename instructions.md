@@ -27,9 +27,12 @@ If your audiobooks or podcasts already live in File Browser or Nextcloud:
 3. Audiobookshelf restarts with that storage mounted read-only. The whole service appears at a fixed location inside Audiobookshelf — `/mnt/filebrowser` for File Browser, `/mnt/nextcloud` for Nextcloud.
 4. In Audiobookshelf, add a library (or edit an existing one) and use its **folder browser** to drill into the specific folder that holds that library's media:
    - **File Browser** — your files are at the top level, e.g. `/mnt/filebrowser/Audiobooks`.
-   - **Nextcloud** — files live under each user account, e.g. `/mnt/nextcloud/data/<your-username>/files/Audiobooks`.
+   - **Nextcloud** — Nextcloud is multi-user, so under `/mnt/nextcloud/data` you will see one folder per Nextcloud account. Open the account that owns the media, e.g. `/mnt/nextcloud/data/<username>/files/Audiobooks`. Add more than one as separate libraries if your media is split across accounts.
 
 You pick the exact media folders inside Audiobookshelf's own library settings — the StartOS action only connects the storage, it does not choose folders for you. These mounts are read-only, so use them for libraries you only scan and play. Keep podcast downloads and web uploads on the writable `/audiobooks` and `/podcasts` libraries.
+
+> [!NOTE]
+> Reading Nextcloud files directly has limits: media kept in **Group Folders** or **External Storage** is not under `data/<username>/files/`, and if Nextcloud's **server-side encryption** is enabled the files on disk are encrypted and Audiobookshelf cannot read them. For those cases, use File Browser instead, or copy the media into Audiobookshelf's own `/audiobooks` and `/podcasts` libraries.
 
 ## Using Audiobookshelf
 
