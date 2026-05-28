@@ -58,7 +58,7 @@ When an optional external library is connected (see [Dependencies](#dependencies
 | `/mnt/filebrowser` | File Browser `data` volume     |
 | `/mnt/nextcloud`   | Nextcloud `nextcloud` volume   |
 
-`store.json` (in the `config` volume) persists StartOS-specific settings — the selected external libraries and the media-backup toggle.
+`store.json` (in the `config` volume) persists StartOS-specific settings — the selected external libraries.
 
 ---
 
@@ -76,7 +76,6 @@ Audiobookshelf performs first-run setup through its own web interface: on first 
 | ------------------------------------------------------------- | -------------------------------------------------------------- |
 | `PORT`, `CONFIG_PATH`, `METADATA_PATH` (fixed to the mounts)  | Libraries, users, permissions, metadata providers, scheduled tasks, podcast settings, server settings |
 | External libraries (File Browser / Nextcloud, read-only)      | Everything else                                                |
-| Whether media is included in StartOS backups                  |                                                                |
 | Root admin password reset                                     | Day-to-day password changes (in the web UI)                    |
 
 ---
@@ -103,7 +102,6 @@ The web app and the API (used by the mobile apps) are served on the same interfa
 | Action | ID | Purpose | Availability | Input | Output |
 | ------ | -- | ------- | ------------ | ----- | ------ |
 | External Libraries | `media-sources` | Connect File Browser and/or Nextcloud as read-only external libraries Audiobookshelf can scan and play | Any status | Multiselect of available storage services | — |
-| Include media stored in Audiobookshelf in backups | `backup-media` | Toggle whether the `audiobooks` and `podcasts` volumes are included in StartOS backups | Any status | Toggle | — |
 | Reset Admin Password | `reset-admin-password` | Generate a new random password for the root admin account and write it directly to the database | Only when stopped | — | Root username + new password (masked, copyable) |
 
 All actions are `visibility: 'enabled'`.
@@ -116,12 +114,11 @@ All actions are `visibility: 'enabled'`.
 
 - `config` volume (database, users, libraries, settings)
 - `metadata` volume (covers, cache, logs, internal backups)
+- `audiobooks` and `podcasts` volumes — the media Audiobookshelf manages directly.
 
-**Conditionally included:**
+All volumes are mirrored with rsync (`--delete`), so a repeat backup of a large library only transfers what changed. This is **differential, not incremental**: the backup target mirrors the volume's current state rather than accumulating history, so deleting media on the server also removes it from the backup target on the next run.
 
-- `audiobooks` and `podcasts` volumes — only when **Include media stored in Audiobookshelf in backups** is enabled. These are synced incrementally with rsync (`addSync`) rather than copied wholesale, so repeat backups of large libraries stay fast.
-
-**Restore behavior:** `config` and `metadata` are always restored. The media volumes are restored automatically if (and only if) they are present in the backup archive — the package detects this at restore time, since the opt-in flag itself lives in `config` and is not yet available when restore begins.
+**Restore behavior:** all four volumes are restored from the backup archive.
 
 Media provided by File Browser or Nextcloud is **not** backed up by Audiobookshelf; back it up through that service instead.
 
@@ -152,8 +149,7 @@ A dependency is added only when selected via the **External Libraries** action.
 ## Limitations and Differences
 
 1. **External libraries are read-only.** Libraries pointed at `/mnt/filebrowser` or `/mnt/nextcloud` can be scanned and played but never written to — Audiobookshelf is the only writable store. Podcast auto-download and web uploads must target the writable `/audiobooks` or `/podcasts` libraries.
-2. **Media is excluded from StartOS backups by default.** Enable the backup-media action if you store your library inside Audiobookshelf and want it backed up.
-3. **The Reset Admin Password action requires the service to be stopped** — it writes directly to the database.
+2. **The Reset Admin Password action requires the service to be stopped** — it writes directly to the database.
 
 ---
 
@@ -194,6 +190,5 @@ startos_managed_env_vars:
   - METADATA_PATH
 actions:
   - media-sources
-  - backup-media
   - reset-admin-password
 ```

@@ -43,8 +43,11 @@ The first screen is the account-creation prompt on a fresh install, and the logi
 ### Actions
 
 - **External Libraries** — connect File Browser or Nextcloud as read-only libraries that Audiobookshelf scans and plays. Audiobookshelf never writes to them, so podcast downloads and uploads still go to its own libraries.
-- **Include media stored in Audiobookshelf in backups** — by default, backups cover your database, settings, and cover art but not the audiobook and podcast files themselves. Enable this if you store your library inside Audiobookshelf and want those files included. Leave it off if your media comes from File Browser or Nextcloud, or if your library is too large to back up. Media in File Browser or Nextcloud is backed up by that service, not by Audiobookshelf.
 - **Reset Admin Password** — if you are locked out of the root admin account, stop the service and run this action. It generates a new random password and shows it to you. Day-to-day password changes are done in the web app under your account settings.
+
+### Backups
+
+Your database, settings, cover art, and the **audiobooks** and **podcasts** libraries are all included in StartOS backups automatically — there is no setting to turn this off. Because audiobook and podcast libraries can grow very large, expect backups to take more time and storage accordingly. Media you keep in **File Browser** or **Nextcloud** is backed up by that service, not by Audiobookshelf.
 
 ## Limitations
 

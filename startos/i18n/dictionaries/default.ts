@@ -21,20 +21,14 @@ const dict = {
   'External Libraries': 12,
   'Connect File Browser or Nextcloud as read-only external libraries. Audiobookshelf can scan and play media stored there but cannot modify it. Uploads and podcast downloads always go to the libraries managed by Audiobookshelf.': 13,
 
-  // actions/backupMedia.ts
-  'Back Up Media': 14,
-  'Include media stored in Audiobookshelf in backups': 15,
-  'When enabled, audiobooks and podcasts stored directly in Audiobookshelf are included in StartOS backups. Leave this off if your media comes from File Browser or Nextcloud, or if your library is too large to back up.': 16,
-  'Audiobook and podcast libraries can be very large. Backups may take significant time and storage.': 17,
-
   // actions/resetAdminPassword.ts
-  'Reset Admin Password': 18,
-  'Generate a new random password for the root admin account. Use this if you are locked out of the web interface.': 19,
-  'This replaces the current root account password with a new random one.': 20,
-  'Admin Password Reset': 21,
-  'Your root admin password has been reset. Save these credentials in a password manager.': 22,
-  Username: 23,
-  Password: 24,
+  'Reset Admin Password': 14,
+  'Generate a new random password for the root admin account. Use this if you are locked out of the web interface.': 15,
+  'This replaces the current root account password with a new random one.': 16,
+  'Admin Password Reset': 17,
+  'Your root admin password has been reset. Save these credentials in a password manager.': 18,
+  Username: 19,
+  Password: 20,
 } as const
 
 /**

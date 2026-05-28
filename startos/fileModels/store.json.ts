@@ -3,7 +3,6 @@ import { sdk } from '../sdk'
 
 const shape = z.object({
   mediaSources: z.array(z.enum(['filebrowser', 'nextcloud'])).catch([]),
-  backupMedia: z.boolean().catch(false),
 })
 
 export const storeJson = FileHelper.json(
