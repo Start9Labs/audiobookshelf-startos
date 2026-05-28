@@ -51,14 +51,14 @@
 | `audiobooks` | `/audiobooks`  | Writable audiobook library managed by Audiobookshelf (uploads land here) |
 | `podcasts`   | `/podcasts`    | Writable podcast library managed by Audiobookshelf (downloaded episodes land here) |
 
-When an optional storage dependency is connected (see [Dependencies](#dependencies)), its data volume is mounted **read-only**:
+When an optional external library is connected (see [Dependencies](#dependencies)), its data volume is mounted **read-only**:
 
 | Mount Point        | Source                         |
 | ------------------ | ------------------------------ |
 | `/mnt/filebrowser` | File Browser `data` volume     |
 | `/mnt/nextcloud`   | Nextcloud `nextcloud` volume   |
 
-`store.json` (in the `config` volume) persists StartOS-specific settings — the selected media sources and the media-backup toggle.
+`store.json` (in the `config` volume) persists StartOS-specific settings — the selected external libraries and the media-backup toggle.
 
 ---
 
@@ -75,7 +75,7 @@ Audiobookshelf performs first-run setup through its own web interface: on first 
 | StartOS-Managed (actions / env vars)                          | Upstream-Managed (Audiobookshelf web UI)                       |
 | ------------------------------------------------------------- | -------------------------------------------------------------- |
 | `PORT`, `CONFIG_PATH`, `METADATA_PATH` (fixed to the mounts)  | Libraries, users, permissions, metadata providers, scheduled tasks, podcast settings, server settings |
-| Connected media sources (File Browser / Nextcloud)            | Everything else                                                |
+| External libraries (File Browser / Nextcloud, read-only)      | Everything else                                                |
 | Whether media is included in StartOS backups                  |                                                                |
 | Root admin password reset                                     | Day-to-day password changes (in the web UI)                    |
 
@@ -102,7 +102,7 @@ The web app and the API (used by the mobile apps) are served on the same interfa
 
 | Action | ID | Purpose | Availability | Input | Output |
 | ------ | -- | ------- | ------------ | ----- | ------ |
-| Connect Media Storage | `media-sources` | Select File Browser and/or Nextcloud to mount read-only as media sources | Any status | Multiselect of available storage services | — |
+| External Libraries | `media-sources` | Connect File Browser and/or Nextcloud as read-only external libraries Audiobookshelf can scan and play | Any status | Multiselect of available storage services | — |
 | Include media stored in Audiobookshelf in backups | `backup-media` | Toggle whether the `audiobooks` and `podcasts` volumes are included in StartOS backups | Any status | Toggle | — |
 | Reset Admin Password | `reset-admin-password` | Generate a new random password for the root admin account and write it directly to the database | Only when stopped | — | Root username + new password (masked, copyable) |
 
@@ -138,20 +138,20 @@ Media provided by File Browser or Nextcloud is **not** backed up by Audiobookshe
 
 ## Dependencies
 
-Both dependencies are **optional** and used only as read-only media sources. They are mounted by file path — Audiobookshelf does not call their APIs — so they need only be installed, not running.
+Both dependencies are **optional** and serve only as **read-only external libraries** — existing collections Audiobookshelf can scan and play but never writes to. They are mounted by file path (Audiobookshelf does not call their APIs), so they need only be installed, not running. Audiobookshelf is the sole writable store: all uploads and podcast downloads go to its own `audiobooks` / `podcasts` volumes.
 
 | Dependency | Required | Version | Mounted Volume | Mount Point | Purpose |
 | ---------- | -------- | ------- | -------------- | ----------- | ------- |
-| File Browser | Optional | `>=2.63.2:0` | `data` (read-only) | `/mnt/filebrowser` | Scan an existing media library managed in File Browser |
-| Nextcloud | Optional | `>=32.0.8:0` | `nextcloud` (read-only) | `/mnt/nextcloud` | Scan an existing media library managed in Nextcloud |
+| File Browser | Optional | `>=2.63.2:0` | `data` (read-only) | `/mnt/filebrowser` | Scan an existing read-only library managed in File Browser |
+| Nextcloud | Optional | `>=32.0.8:0` | `nextcloud` (read-only) | `/mnt/nextcloud` | Scan an existing read-only library managed in Nextcloud |
 
-A dependency is added only when selected via the **Connect Media Storage** action.
+A dependency is added only when selected via the **External Libraries** action.
 
 ---
 
 ## Limitations and Differences
 
-1. **Mounted media sources are read-only.** Libraries pointed at `/mnt/filebrowser` or `/mnt/nextcloud` can be scanned and played but not written to. Podcast auto-download and web uploads must target the writable `/audiobooks` or `/podcasts` libraries.
+1. **External libraries are read-only.** Libraries pointed at `/mnt/filebrowser` or `/mnt/nextcloud` can be scanned and played but never written to — Audiobookshelf is the only writable store. Podcast auto-download and web uploads must target the writable `/audiobooks` or `/podcasts` libraries.
 2. **Media is excluded from StartOS backups by default.** Enable the backup-media action if you store your library inside Audiobookshelf and want it backed up.
 3. **The Reset Admin Password action requires the service to be stopped** — it writes directly to the database.
 

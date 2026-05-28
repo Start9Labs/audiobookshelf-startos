@@ -6,7 +6,7 @@ const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
   mediaSources: Value.multiselect({
-    name: i18n('Media Sources'),
+    name: i18n('External Libraries'),
     values: {
       filebrowser: i18n('File Browser'),
       nextcloud: i18n('Nextcloud'),
@@ -21,9 +21,9 @@ export const mediaSources = sdk.Action.withInput(
 
   // metadata
   async ({ effects }) => ({
-    name: i18n('Connect Media Storage'),
+    name: i18n('External Libraries'),
     description: i18n(
-      'Choose where Audiobookshelf reads your existing media libraries. Selected services are mounted read-only inside Audiobookshelf.',
+      'Connect File Browser or Nextcloud as read-only external libraries. Audiobookshelf can scan and play media stored there but cannot modify it. Uploads and podcast downloads always go to the libraries managed by Audiobookshelf.',
     ),
     warning: null,
     allowedStatuses: 'any',

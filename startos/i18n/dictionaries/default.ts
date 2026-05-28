@@ -18,24 +18,23 @@ const dict = {
   // actions/mediaSources.ts
   'File Browser': 10,
   Nextcloud: 11,
-  'Media Sources': 12,
-  'Connect Media Storage': 13,
-  'Choose where Audiobookshelf reads your existing media libraries. Selected services are mounted read-only inside Audiobookshelf.': 14,
+  'External Libraries': 12,
+  'Connect File Browser or Nextcloud as read-only external libraries. Audiobookshelf can scan and play media stored there but cannot modify it. Uploads and podcast downloads always go to the libraries managed by Audiobookshelf.': 13,
 
   // actions/backupMedia.ts
-  'Back Up Media': 15,
-  'Include media stored in Audiobookshelf in backups': 16,
-  'When enabled, audiobooks and podcasts stored directly in Audiobookshelf are included in StartOS backups. Leave this off if your media comes from File Browser or Nextcloud, or if your library is too large to back up.': 17,
-  'Audiobook and podcast libraries can be very large. Backups may take significant time and storage.': 18,
+  'Back Up Media': 14,
+  'Include media stored in Audiobookshelf in backups': 15,
+  'When enabled, audiobooks and podcasts stored directly in Audiobookshelf are included in StartOS backups. Leave this off if your media comes from File Browser or Nextcloud, or if your library is too large to back up.': 16,
+  'Audiobook and podcast libraries can be very large. Backups may take significant time and storage.': 17,
 
   // actions/resetAdminPassword.ts
-  'Reset Admin Password': 19,
-  'Generate a new random password for the root admin account. Use this if you are locked out of the web interface.': 20,
-  'This replaces the current root account password with a new random one.': 21,
-  'Admin Password Reset': 22,
-  'Your root admin password has been reset. Save these credentials in a password manager.': 23,
-  Username: 24,
-  Password: 25,
+  'Reset Admin Password': 18,
+  'Generate a new random password for the root admin account. Use this if you are locked out of the web interface.': 19,
+  'This replaces the current root account password with a new random one.': 20,
+  'Admin Password Reset': 21,
+  'Your root admin password has been reset. Save these credentials in a password manager.': 22,
+  Username: 23,
+  Password: 24,
 } as const
 
 /**
