@@ -104,7 +104,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           const res = await subcontainer.exec(['node', '-e', statusScript])
           if (res.exitCode !== 0) {
             return {
-              result: 'starting' as const,
+              result: 'starting',
               message: i18n('Waiting for the server to respond'),
             }
           }
@@ -113,9 +113,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
               ? res.stdout
               : res.stdout?.toString('utf8')) ?? ''
           return out.trim() === 'INIT'
-            ? { result: 'success' as const, message: i18n('Setup complete') }
+            ? { result: 'success', message: i18n('Setup complete') }
             : {
-                result: 'loading' as const,
+                result: 'loading',
                 message: i18n('Open the Web UI to create your admin account'),
               }
         },
