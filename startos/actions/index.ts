@@ -1,7 +1,7 @@
 import { sdk } from '../sdk'
-import { mediaSources } from './mediaSources'
+import { externalLibraries } from './externalLibraries'
 import { resetAdminPassword } from './resetAdminPassword'
 
 export const actions = sdk.Actions.of()
-  .addAction(mediaSources)
+  .addAction(externalLibraries)
   .addAction(resetAdminPassword)

@@ -101,7 +101,7 @@ The web app and the API (used by the mobile apps) are served on the same interfa
 
 | Action | ID | Purpose | Availability | Input | Output |
 | ------ | -- | ------- | ------------ | ----- | ------ |
-| External Libraries | `media-sources` | Connect File Browser and/or Nextcloud as read-only external libraries Audiobookshelf can scan and play | Any status | Multiselect of available storage services | — |
+| External Libraries | `external-libraries` | Connect File Browser and/or Nextcloud as read-only external libraries Audiobookshelf can scan and play | Any status | Multiselect of available storage services | — |
 | Reset Admin Password | `reset-admin-password` | Generate a new random password for the root admin account and write it directly to the database | Only when stopped | — | Root username + new password (masked, copyable) |
 
 All actions are `visibility: 'enabled'`.
@@ -189,6 +189,6 @@ startos_managed_env_vars:
   - CONFIG_PATH
   - METADATA_PATH
 actions:
-  - media-sources
+  - external-libraries
   - reset-admin-password
 ```

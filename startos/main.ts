@@ -16,8 +16,8 @@ const statusScript = `require('http').get('http://127.0.0.1:${uiPort}/status',fu
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info(i18n('Starting Audiobookshelf!'))
 
-  const mediaSources =
-    (await storeJson.read((s) => s.mediaSources).const(effects)) ?? []
+  const externalLibraries =
+    (await storeJson.read((s) => s.externalLibraries).const(effects)) ?? []
 
   let mounts = sdk.Mounts.of()
     .mountVolume({
@@ -45,7 +45,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       readonly: false,
     })
 
-  if (mediaSources.includes('filebrowser')) {
+  if (externalLibraries.includes('filebrowser')) {
     mounts = mounts.mountDependency<typeof filebrowserManifest>({
       dependencyId: 'filebrowser',
       volumeId: 'data',
@@ -55,7 +55,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     })
   }
 
-  if (mediaSources.includes('nextcloud')) {
+  if (externalLibraries.includes('nextcloud')) {
     mounts = mounts.mountDependency<typeof nextcloudManifest>({
       dependencyId: 'nextcloud',
       volumeId: 'nextcloud',

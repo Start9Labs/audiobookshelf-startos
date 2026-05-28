@@ -5,7 +5,7 @@ import { sdk } from '../sdk'
 const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
-  mediaSources: Value.multiselect({
+  externalLibraries: Value.multiselect({
     name: i18n('External Libraries'),
     values: {
       filebrowser: i18n('File Browser'),
@@ -15,9 +15,9 @@ export const inputSpec = InputSpec.of({
   }),
 })
 
-export const mediaSources = sdk.Action.withInput(
+export const externalLibraries = sdk.Action.withInput(
   // id
-  'media-sources',
+  'external-libraries',
 
   // metadata
   async ({ effects }) => ({
@@ -36,10 +36,11 @@ export const mediaSources = sdk.Action.withInput(
 
   // optionally pre-fill the input form
   async ({ effects }) => ({
-    mediaSources: (await storeJson.read((s) => s.mediaSources).once()) ?? [],
+    externalLibraries:
+      (await storeJson.read((s) => s.externalLibraries).once()) ?? [],
   }),
 
   // the execution function
   async ({ effects, input }) =>
-    storeJson.merge(effects, { mediaSources: input.mediaSources }),
+    storeJson.merge(effects, { externalLibraries: input.externalLibraries }),
 )

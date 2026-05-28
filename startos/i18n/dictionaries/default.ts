@@ -15,7 +15,7 @@ const dict = {
   'Web UI': 8,
   'The web interface of Audiobookshelf': 9,
 
-  // actions/mediaSources.ts
+  // actions/externalLibraries.ts
   'File Browser': 10,
   Nextcloud: 11,
   'External Libraries': 12,
