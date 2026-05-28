@@ -1,25 +1,45 @@
-# Hello World
-
-You've installed Hello World — there's nothing to configure and nothing to set up. This page covers how to open the page it serves and where to read more. (If you're a developer, Hello World is also the recommended packaging template.)
+# Audiobookshelf
 
 ## Documentation
 
-- [Hello World upstream docs](https://github.com/Start9Labs/hello-world/blob/master/README.md) — the README for the web server this package runs.
-- [StartOS Packaging Guide](https://docs.start9.com/packaging) — how to build a StartOS service package from that template.
+- [Audiobookshelf documentation](https://www.audiobookshelf.org/docs) — the official guide to libraries, podcasts, users, and settings.
+- [Audiobookshelf guides](https://www.audiobookshelf.org/guides) — walkthroughs for organizing audiobooks and podcasts.
 
 ## What you get on StartOS
 
-- **A running web server** that serves a single static page.
-- **Nothing to configure and no actions** — the service starts on its own and is immediately usable.
+A self-hosted audiobook and podcast server with one web interface. The same interface serves the web app and the API used by the Audiobookshelf mobile apps. Your library, listening progress, users, and settings all live on your server.
+
+Audiobookshelf manages two writable libraries for you: **audiobooks** and **podcasts**. Podcasts you subscribe to download into the podcasts library, and files you upload through the web app land in the audiobooks library. If you already keep a media collection in **File Browser** or **Nextcloud**, you can connect either as an additional read-only source.
 
 ## Getting set up
 
-There's no setup wizard, no admin password, no first-run prompt — Hello World is usable the moment it starts. To view the page it serves:
+1. Open the **Web UI** from the Dashboard. On first launch Audiobookshelf asks you to create the **root admin account** — choose a username and a strong password. This is the only account that can never be deleted, so save the credentials.
+2. Create your first **library**. For audiobooks you upload or files Audiobookshelf manages, point the library at `/audiobooks`. For podcasts, point it at `/podcasts`.
+3. Add content: upload audiobooks directly in the web app, or open a podcast library and search for and subscribe to shows — episodes download automatically.
+4. Install the Audiobookshelf app on your phone (Android or iOS) and sign in using your server's address and the account from step 1.
 
-1. Open Hello World's **Dashboard** tab.
-2. Click the **Web UI** interface to open the served page in your browser.
+### Connecting an existing library (optional)
+
+If your audiobooks or podcasts already live in File Browser or Nextcloud:
+
+1. Install File Browser and/or Nextcloud first, and move your media into them.
+2. Run the **Connect Media Storage** action and select the service(s).
+3. Audiobookshelf restarts with that storage mounted read-only. Create a library pointing at `/mnt/filebrowser` or `/mnt/nextcloud` to scan it.
+
+These mounts are read-only, so use them for libraries you only scan and play. Keep podcast downloads and web uploads on the `/audiobooks` and `/podcasts` libraries, which are writable.
+
+## Using Audiobookshelf
+
+### Web interface
+
+The first screen is the account-creation prompt on a fresh install, and the login screen afterward. From there you manage libraries, users, metadata, and server settings — see the upstream documentation for the full feature set.
+
+### Actions
+
+- **Connect Media Storage** — choose whether Audiobookshelf also reads media from File Browser or Nextcloud.
+- **Include media stored in Audiobookshelf in backups** — by default, backups cover your database, settings, and cover art but not the audiobook and podcast files themselves. Enable this if you store your library inside Audiobookshelf and want those files included. Leave it off if your media comes from File Browser or Nextcloud, or if your library is too large to back up. Media in File Browser or Nextcloud is backed up by that service, not by Audiobookshelf.
+- **Reset Admin Password** — if you are locked out of the root admin account, stop the service and run this action. It generates a new random password and shows it to you. Day-to-day password changes are done in the web app under your account settings.
 
 ## Limitations
 
-- Hello World is intentionally minimal. It is not a useful service on its own; it exists to demonstrate the StartOS packaging system.
-- The page content is static and cannot be customized through the StartOS UI.
+- Libraries pointed at `/mnt/filebrowser` or `/mnt/nextcloud` are read-only. Audiobookshelf can scan and play them but cannot download podcasts into them or accept uploads there.

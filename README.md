@@ -1,16 +1,16 @@
 <p align="center">
-  <img src="icon.svg" alt="Hello World Logo" width="21%">
+  <img src="icon.svg" alt="Audiobookshelf Logo" width="21%">
 </p>
 
-# Hello World on StartOS
+# Audiobookshelf on StartOS
 
-> **Upstream repo:** <https://github.com/Start9Labs/hello-world>
+> **Upstream docs:** <https://www.audiobookshelf.org/docs>
+>
+> Everything not listed in this document should behave the same as upstream
+> Audiobookshelf. If a feature, setting, or behavior is not mentioned here, the
+> upstream documentation is accurate and fully applicable.
 
-A minimal reference service for StartOS. It displays a simple web page — nothing more. Use [this repository](https://github.com/Start9Labs/hello-world-startos) as a template when packaging a new service for StartOS.
-
-## Getting Started
-
-To learn how to use this template to create your own StartOS service package, see the [Packaging Guide](https://docs.start9.com/packaging).
+[Audiobookshelf](https://github.com/advplyr/audiobookshelf) is a self-hosted audiobook and podcast server with progress syncing, multi-user support, podcast auto-download, and open-source mobile apps.
 
 ---
 
@@ -34,39 +34,60 @@ To learn how to use this template to create your own StartOS service package, se
 
 ## Image and Container Runtime
 
-| Property      | Value                                  |
-| ------------- | -------------------------------------- |
-| Image         | `ghcr.io/start9labs/hello-world`       |
-| Architectures | x86_64, aarch64, riscv64               |
-| Command       | `hello-world`                          |
+| Property      | Value                                |
+| ------------- | ------------------------------------ |
+| Image         | `ghcr.io/advplyr/audiobookshelf` (upstream, unmodified) |
+| Architectures | x86_64, aarch64                      |
+| Entrypoint    | Upstream default (`tini -- node index.js`) via `sdk.useEntrypoint()` |
 
 ---
 
 ## Volume and Data Layout
 
-| Volume | Mount Point | Purpose         |
-| ------ | ----------- | --------------- |
-| `main` | `/data`     | Persistent data |
+| Volume       | Mount Point    | Purpose                                              |
+| ------------ | -------------- | ---------------------------------------------------- |
+| `config`     | `/config`      | SQLite database (`absdatabase.sqlite`), users, libraries, settings, and the StartOS `store.json` |
+| `metadata`   | `/metadata`    | Cover art, cache, item metadata, logs, and Audiobookshelf's internal backups |
+| `audiobooks` | `/audiobooks`  | Writable audiobook library managed by Audiobookshelf (uploads land here) |
+| `podcasts`   | `/podcasts`    | Writable podcast library managed by Audiobookshelf (downloaded episodes land here) |
+
+When an optional storage dependency is connected (see [Dependencies](#dependencies)), its data volume is mounted **read-only**:
+
+| Mount Point        | Source                         |
+| ------------------ | ------------------------------ |
+| `/mnt/filebrowser` | File Browser `data` volume     |
+| `/mnt/nextcloud`   | Nextcloud `nextcloud` volume   |
+
+`store.json` (in the `config` volume) persists StartOS-specific settings — the selected media sources and the media-backup toggle.
 
 ---
 
 ## Installation and First-Run Flow
 
-No special setup. Install and start — the web page is immediately available.
+Audiobookshelf performs first-run setup through its own web interface: on first visit it prompts you to create the **root admin account**. The package does not pre-create or auto-generate this account. Until it exists, the `initial-setup` health check reports that the account still needs to be created.
+
+`PORT`, `CONFIG_PATH`, and `METADATA_PATH` are set by StartOS to match the mounts above.
 
 ---
 
 ## Configuration Management
 
-No configurable settings. The service runs with no user-facing configuration.
+| StartOS-Managed (actions / env vars)                          | Upstream-Managed (Audiobookshelf web UI)                       |
+| ------------------------------------------------------------- | -------------------------------------------------------------- |
+| `PORT`, `CONFIG_PATH`, `METADATA_PATH` (fixed to the mounts)  | Libraries, users, permissions, metadata providers, scheduled tasks, podcast settings, server settings |
+| Connected media sources (File Browser / Nextcloud)            | Everything else                                                |
+| Whether media is included in StartOS backups                  |                                                                |
+| Root admin password reset                                     | Day-to-day password changes (in the web UI)                    |
 
 ---
 
 ## Network Access and Interfaces
 
-| Interface | Port | Protocol | Purpose              |
-| --------- | ---- | -------- | -------------------- |
-| Web UI    | 80   | HTTP     | Hello World web page |
+| Interface | Port | Protocol | Purpose                       |
+| --------- | ---- | -------- | ----------------------------- |
+| Web UI    | 80   | HTTP     | Audiobookshelf web app + API  |
+
+The web app and the API (used by the mobile apps) are served on the same interface. Audiobookshelf has its own authentication, so the interface is not masked.
 
 **Access methods:**
 
@@ -79,43 +100,66 @@ No configurable settings. The service runs with no user-facing configuration.
 
 ## Actions (StartOS UI)
 
-None.
+| Action | ID | Purpose | Availability | Input | Output |
+| ------ | -- | ------- | ------------ | ----- | ------ |
+| Connect Media Storage | `media-sources` | Select File Browser and/or Nextcloud to mount read-only as media sources | Any status | Multiselect of available storage services | — |
+| Include media stored in Audiobookshelf in backups | `backup-media` | Toggle whether the `audiobooks` and `podcasts` volumes are included in StartOS backups | Any status | Toggle | — |
+| Reset Admin Password | `reset-admin-password` | Generate a new random password for the root admin account and write it directly to the database | Only when stopped | — | Root username + new password (masked, copyable) |
+
+All actions are `visibility: 'enabled'`.
 
 ---
 
 ## Backups and Restore
 
-**Included in backup:**
+**Always included:**
 
-- `main` volume
+- `config` volume (database, users, libraries, settings)
+- `metadata` volume (covers, cache, logs, internal backups)
 
-**Restore behavior:** Volume is fully restored before the service starts.
+**Conditionally included:**
+
+- `audiobooks` and `podcasts` volumes — only when **Include media stored in Audiobookshelf in backups** is enabled. These are synced incrementally with rsync (`addSync`) rather than copied wholesale, so repeat backups of large libraries stay fast.
+
+**Restore behavior:** `config` and `metadata` are always restored. The media volumes are restored automatically if (and only if) they are present in the backup archive — the package detects this at restore time, since the opt-in flag itself lives in `config` and is not yet available when restore begins.
+
+Media provided by File Browser or Nextcloud is **not** backed up by Audiobookshelf; back it up through that service instead.
 
 ---
 
 ## Health Checks
 
-| Check         | Method              | Messages                                                           |
-| ------------- | ------------------- | ------------------------------------------------------------------ |
-| Web Interface | Port listening (80) | Success: "The web interface is ready" / Error: "The web interface is not ready" |
+| Check         | Method | Messages |
+| ------------- | ------ | -------- |
+| Web Interface | HTTP GET `/healthcheck` (returns 200) | Success: "The web interface is ready" / Error: "The web interface is not ready" |
+| Initial Setup | HTTP GET `/status` (`isInit`) from inside the container | `success`: "Setup complete" once a root account exists; `loading`: "Open the Web UI to create your admin account"; `starting`: "Waiting for the server to respond" |
 
 ---
 
 ## Dependencies
 
-None.
+Both dependencies are **optional** and used only as read-only media sources. They are mounted by file path — Audiobookshelf does not call their APIs — so they need only be installed, not running.
+
+| Dependency | Required | Version | Mounted Volume | Mount Point | Purpose |
+| ---------- | -------- | ------- | -------------- | ----------- | ------- |
+| File Browser | Optional | `>=2.63.2:0` | `data` (read-only) | `/mnt/filebrowser` | Scan an existing media library managed in File Browser |
+| Nextcloud | Optional | `>=32.0.8:0` | `nextcloud` (read-only) | `/mnt/nextcloud` | Scan an existing media library managed in Nextcloud |
+
+A dependency is added only when selected via the **Connect Media Storage** action.
 
 ---
 
 ## Limitations and Differences
 
-1. **No meaningful functionality** — this is a reference/template package only
+1. **Mounted media sources are read-only.** Libraries pointed at `/mnt/filebrowser` or `/mnt/nextcloud` can be scanned and played but not written to. Podcast auto-download and web uploads must target the writable `/audiobooks` or `/podcasts` libraries.
+2. **Media is excluded from StartOS backups by default.** Enable the backup-media action if you store your library inside Audiobookshelf and want it backed up.
+3. **The Reset Admin Password action requires the service to be stopped** — it writes directly to the database.
 
 ---
 
 ## What Is Unchanged from Upstream
 
-The service is identical to upstream. There are no modifications.
+Libraries, users, permissions, metadata fetching, podcast search/subscribe/download, Audiobookshelf's own scheduled backups, the API, ebook support, and the mobile apps all behave exactly as documented upstream.
 
 ---
 
@@ -128,14 +172,28 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development wo
 ## Quick Reference for AI Consumers
 
 ```yaml
-package_id: hello-world
-image: ghcr.io/start9labs/hello-world
-architectures: [x86_64, aarch64, riscv64]
+package_id: audiobookshelf
+image: ghcr.io/advplyr/audiobookshelf
+architectures: [x86_64, aarch64]
 volumes:
-  main: /data
+  config: /config
+  metadata: /metadata
+  audiobooks: /audiobooks
+  podcasts: /podcasts
+dependency_mounts:
+  filebrowser: /mnt/filebrowser (read-only)
+  nextcloud: /mnt/nextcloud (read-only)
 ports:
   ui: 80
-dependencies: none
-startos_managed_env_vars: none
-actions: none
+dependencies:
+  - filebrowser (optional)
+  - nextcloud (optional)
+startos_managed_env_vars:
+  - PORT
+  - CONFIG_PATH
+  - METADATA_PATH
+actions:
+  - media-sources
+  - backup-media
+  - reset-admin-password
 ```

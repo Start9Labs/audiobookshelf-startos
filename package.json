@@ -1,12 +1,14 @@
 {
-  "name": "hello-world-startos",
+  "name": "audiobookshelf-startos",
   "scripts": {
     "build": "rm -rf ./javascript && ncc build startos/index.ts -o ./javascript",
     "prettier": "prettier --write startos",
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@start9labs/start-sdk": "1.5.3"
+    "@start9labs/start-sdk": "1.5.3",
+    "filebrowser-startos": "github:Start9Labs/filebrowser-startos#next",
+    "nextcloud-startos": "github:Start9Labs/nextcloud-startos#next"
   },
   "devDependencies": {
     "@types/node": "^22.19.0",
