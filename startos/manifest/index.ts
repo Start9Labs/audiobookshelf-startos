@@ -18,7 +18,7 @@ export const manifest = setupManifest({
   volumes: ['config', 'metadata', 'audiobooks', 'podcasts'],
   images: {
     audiobookshelf: {
-      source: { dockerTag: 'ghcr.io/advplyr/audiobookshelf:2.35.0' },
+      source: { dockerTag: 'ghcr.io/advplyr/audiobookshelf:2.35.1' },
       arch: ['x86_64', 'aarch64'],
     },
   },
