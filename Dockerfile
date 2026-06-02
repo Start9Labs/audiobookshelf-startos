@@ -29,7 +29,7 @@ RUN npm pack workbox-cdn@5.1.4 \
  && cp package/workbox/workbox-sw.js package/workbox/*.prod.js /workbox/
 
 # --- Patched Audiobookshelf ---
-FROM ghcr.io/advplyr/audiobookshelf:2.35.0
+FROM ghcr.io/advplyr/audiobookshelf:2.35.1
 
 # ABS serves the client under this base path by default
 # (index.js: process.env.ROUTER_BASE_PATH = devEnv.RouterBasePath ?? '/audiobookshelf').
