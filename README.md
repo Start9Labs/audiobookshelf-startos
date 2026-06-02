@@ -36,7 +36,7 @@
 
 | Property      | Value                                |
 | ------------- | ------------------------------------ |
-| Image         | `ghcr.io/advplyr/audiobookshelf` (upstream, unmodified) |
+| Image         | Built from `ghcr.io/advplyr/audiobookshelf:<version>` via [`Dockerfile`](Dockerfile), patched to remove the web client's third-party calls (see [What Is Changed from Upstream](#what-is-changed-from-upstream)) |
 | Architectures | x86_64, aarch64                      |
 | Entrypoint    | Upstream default (`tini -- node index.js`) via `sdk.useEntrypoint()` |
 
@@ -153,6 +153,17 @@ A dependency is added only when selected via the **External Libraries** action.
 
 ---
 
+## What Is Changed from Upstream
+
+The web client is patched (at image build time, in [`Dockerfile`](Dockerfile)) to remove the two third-party requests the browser would otherwise make on its own — appropriate for a sovereign-computing platform:
+
+- **Update check (`api.github.com`) — neutralized.** The client no longer polls GitHub for new releases. Updates come through the StartOS registry, so the in-app "update available" banner is moot; it is served a same-origin "you are on the latest release" payload (`no-update.json`) instead. No banner, no error.
+- **Workbox (`cdn.jsdelivr.net`) — vendored.** The PWA service worker now loads Workbox from this server's own origin (`/audiobookshelf/workbox/`) rather than the jsDelivr CDN. PWA install and offline app-shell caching keep working, with no external dependency.
+
+Two other external calls need no patch: the **Google Cast** SDK (`www.gstatic.com`) is gated behind the `chromecastEnabled` server setting, which is off by default, and the server-side **ffmpeg/nusqlite3** binary download is already suppressed by the upstream image's `SOURCE=docker` env.
+
+Each patch asserts its anchor strings at build time, so an upstream bump that reshapes the bundle fails the build rather than silently shipping an un-patched client (see [UPDATING.md](UPDATING.md)).
+
 ## What Is Unchanged from Upstream
 
 Libraries, users, permissions, metadata fetching, podcast search/subscribe/download, Audiobookshelf's own scheduled backups, the API, ebook support, and the mobile apps all behave exactly as documented upstream.
@@ -169,7 +180,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development wo
 
 ```yaml
 package_id: audiobookshelf
-image: ghcr.io/advplyr/audiobookshelf
+image: built from ghcr.io/advplyr/audiobookshelf via ./Dockerfile (web client patched to drop third-party calls)
 architectures: [x86_64, aarch64]
 volumes:
   config: /config
