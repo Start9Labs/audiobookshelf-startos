@@ -2,8 +2,7 @@
 
 ## Documentation
 
-- [Audiobookshelf documentation](https://www.audiobookshelf.org/docs) — the official guide to libraries, podcasts, users, and settings.
-- [Audiobookshelf guides](https://www.audiobookshelf.org/guides) — walkthroughs for organizing audiobooks and podcasts.
+- [Audiobookshelf documentation](https://audiobookshelf.org/docs) — the official guide to libraries, podcasts, users, settings, and walkthroughs for organizing audiobooks and podcasts.
 
 ## What you get on StartOS
 

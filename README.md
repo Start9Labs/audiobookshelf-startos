@@ -4,7 +4,7 @@
 
 # Audiobookshelf on StartOS
 
-> **Upstream docs:** <https://www.audiobookshelf.org/docs>
+> **Upstream docs:** <https://audiobookshelf.org/docs>
 >
 > Everything not listed in this document should behave the same as upstream
 > Audiobookshelf. If a feature, setting, or behavior is not mentioned here, the
