@@ -34,29 +34,29 @@
 
 ## Image and Container Runtime
 
-| Property      | Value                                |
-| ------------- | ------------------------------------ |
+| Property      | Value                                                                                                                                                                                                            |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Image         | Built from `ghcr.io/advplyr/audiobookshelf:<version>` via [`Dockerfile`](Dockerfile), patched to remove the web client's third-party calls (see [What Is Changed from Upstream](#what-is-changed-from-upstream)) |
-| Architectures | x86_64, aarch64                      |
-| Entrypoint    | Upstream default (`tini -- node index.js`) via `sdk.useEntrypoint()` |
+| Architectures | x86_64, aarch64                                                                                                                                                                                                  |
+| Entrypoint    | Upstream default (`tini -- node index.js`) via `sdk.useEntrypoint()`                                                                                                                                             |
 
 ---
 
 ## Volume and Data Layout
 
-| Volume       | Mount Point    | Purpose                                              |
-| ------------ | -------------- | ---------------------------------------------------- |
-| `config`     | `/config`      | SQLite database (`absdatabase.sqlite`), users, libraries, settings, and the StartOS `store.json` |
-| `metadata`   | `/metadata`    | Cover art, cache, item metadata, logs, and Audiobookshelf's internal backups |
-| `audiobooks` | `/audiobooks`  | Writable audiobook library managed by Audiobookshelf (uploads land here) |
-| `podcasts`   | `/podcasts`    | Writable podcast library managed by Audiobookshelf (downloaded episodes land here) |
+| Volume       | Mount Point   | Purpose                                                                                          |
+| ------------ | ------------- | ------------------------------------------------------------------------------------------------ |
+| `config`     | `/config`     | SQLite database (`absdatabase.sqlite`), users, libraries, settings, and the StartOS `store.json` |
+| `metadata`   | `/metadata`   | Cover art, cache, item metadata, logs, and Audiobookshelf's internal backups                     |
+| `audiobooks` | `/audiobooks` | Writable audiobook library managed by Audiobookshelf (uploads land here)                         |
+| `podcasts`   | `/podcasts`   | Writable podcast library managed by Audiobookshelf (downloaded episodes land here)               |
 
 When an optional external library is connected (see [Dependencies](#dependencies)), its data volume is mounted **read-only**:
 
-| Mount Point        | Source                         |
-| ------------------ | ------------------------------ |
-| `/mnt/filebrowser` | File Browser `data` volume     |
-| `/mnt/nextcloud`   | Nextcloud `nextcloud` volume   |
+| Mount Point        | Source                       |
+| ------------------ | ---------------------------- |
+| `/mnt/filebrowser` | File Browser `data` volume   |
+| `/mnt/nextcloud`   | Nextcloud `nextcloud` volume |
 
 `store.json` (in the `config` volume) persists StartOS-specific settings — the selected external libraries.
 
@@ -72,19 +72,19 @@ Audiobookshelf performs first-run setup through its own web interface: on first 
 
 ## Configuration Management
 
-| StartOS-Managed (actions / env vars)                          | Upstream-Managed (Audiobookshelf web UI)                       |
-| ------------------------------------------------------------- | -------------------------------------------------------------- |
-| `PORT`, `CONFIG_PATH`, `METADATA_PATH` (fixed to the mounts)  | Libraries, users, permissions, metadata providers, scheduled tasks, podcast settings, server settings |
-| External libraries (File Browser / Nextcloud, read-only)      | Everything else                                                |
-| Root admin password reset                                     | Day-to-day password changes (in the web UI)                    |
+| StartOS-Managed (actions / env vars)                         | Upstream-Managed (Audiobookshelf web UI)                                                              |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `PORT`, `CONFIG_PATH`, `METADATA_PATH` (fixed to the mounts) | Libraries, users, permissions, metadata providers, scheduled tasks, podcast settings, server settings |
+| External libraries (File Browser / Nextcloud, read-only)     | Everything else                                                                                       |
+| Root admin password reset                                    | Day-to-day password changes (in the web UI)                                                           |
 
 ---
 
 ## Network Access and Interfaces
 
-| Interface | Port | Protocol | Purpose                       |
-| --------- | ---- | -------- | ----------------------------- |
-| Web UI    | 80   | HTTP     | Audiobookshelf web app + API  |
+| Interface | Port | Protocol | Purpose                      |
+| --------- | ---- | -------- | ---------------------------- |
+| Web UI    | 80   | HTTP     | Audiobookshelf web app + API |
 
 The web app and the API (used by the mobile apps) are served on the same interface. Audiobookshelf has its own authentication, so the interface is not masked.
 
@@ -99,10 +99,10 @@ The web app and the API (used by the mobile apps) are served on the same interfa
 
 ## Actions (StartOS UI)
 
-| Action | ID | Purpose | Availability | Input | Output |
-| ------ | -- | ------- | ------------ | ----- | ------ |
-| External Libraries | `external-libraries` | Connect File Browser and/or Nextcloud as read-only external libraries Audiobookshelf can scan and play | Any status | Multiselect of available storage services | — |
-| Reset Admin Password | `reset-admin-password` | Generate a new random password for the root admin account and write it directly to the database | Only when stopped | — | Root username + new password (masked, copyable) |
+| Action               | ID                     | Purpose                                                                                                | Availability      | Input                                     | Output                                          |
+| -------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------ | ----------------- | ----------------------------------------- | ----------------------------------------------- |
+| External Libraries   | `external-libraries`   | Connect File Browser and/or Nextcloud as read-only external libraries Audiobookshelf can scan and play | Any status        | Multiselect of available storage services | —                                               |
+| Reset Admin Password | `reset-admin-password` | Generate a new random password for the root admin account and write it directly to the database        | Only when stopped | —                                         | Root username + new password (masked, copyable) |
 
 All actions are `visibility: 'enabled'`.
 
@@ -126,9 +126,9 @@ Media provided by File Browser or Nextcloud is **not** backed up by Audiobookshe
 
 ## Health Checks
 
-| Check         | Method | Messages |
-| ------------- | ------ | -------- |
-| Web Interface | HTTP GET `/healthcheck` (returns 200) | Success: "The web interface is ready" / Error: "The web interface is not ready" |
+| Check         | Method                                                  | Messages                                                                                                                                                           |
+| ------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Web Interface | HTTP GET `/healthcheck` (returns 200)                   | Success: "The web interface is ready" / Error: "The web interface is not ready"                                                                                    |
 | Initial Setup | HTTP GET `/status` (`isInit`) from inside the container | `success`: "Setup complete" once a root account exists; `loading`: "Open the Web UI to create your admin account"; `starting`: "Waiting for the server to respond" |
 
 ---
@@ -137,10 +137,10 @@ Media provided by File Browser or Nextcloud is **not** backed up by Audiobookshe
 
 Both dependencies are **optional** and serve only as **read-only external libraries** — existing collections Audiobookshelf can scan and play but never writes to. They are mounted by file path (Audiobookshelf does not call their APIs), so they need only be installed, not running. Audiobookshelf is the sole writable store: all uploads and podcast downloads go to its own `audiobooks` / `podcasts` volumes.
 
-| Dependency | Required | Version | Mounted Volume | Mount Point | Purpose |
-| ---------- | -------- | ------- | -------------- | ----------- | ------- |
-| File Browser | Optional | `>=2.63.2:0` | `data` (read-only) | `/mnt/filebrowser` | Scan an existing read-only library managed in File Browser |
-| Nextcloud | Optional | `>=32.0.8:0` | `nextcloud` (read-only) | `/mnt/nextcloud` | Scan an existing read-only library managed in Nextcloud |
+| Dependency   | Required | Version      | Mounted Volume          | Mount Point        | Purpose                                                    |
+| ------------ | -------- | ------------ | ----------------------- | ------------------ | ---------------------------------------------------------- |
+| File Browser | Optional | `>=2.63.2:0` | `data` (read-only)      | `/mnt/filebrowser` | Scan an existing read-only library managed in File Browser |
+| Nextcloud    | Optional | `>=32.0.8:0` | `nextcloud` (read-only) | `/mnt/nextcloud`   | Scan an existing read-only library managed in Nextcloud    |
 
 A dependency is added only when selected via the **External Libraries** action.
 
@@ -172,7 +172,7 @@ Libraries, users, permissions, metadata fetching, podcast search/subscribe/downl
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development workflow.
+Build and development workflow follow the StartOS packaging guide: <https://docs.start9.com/packaging>. Keep `README.md`, `instructions.md`, and `AGENTS.md` in sync with any change to user-visible behavior or package structure.
 
 ---
 
