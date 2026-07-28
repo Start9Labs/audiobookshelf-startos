@@ -32,7 +32,9 @@ export const resetAdminPassword = sdk.Action.withoutInput(
       configMounts,
       'reset-admin',
       async (sub) => {
-        const script = `const bcrypt=require('/app/server/libs/bcryptjs');const sqlite3=require('/app/node_modules/sqlite3');const hash=bcrypt.hashSync('${password}',8);const db=new sqlite3.Database('${dbPath}');db.get("SELECT username FROM users WHERE type='root' LIMIT 1",function(e,row){if(e){console.error('ERR '+e.message);process.exit(3)}if(!row){console.error('NOROOT');process.exit(2)}db.run("UPDATE users SET pash=?, isActive=1, isLocked=0 WHERE type='root'",[hash],function(e2){if(e2){console.error('ERR '+e2.message);process.exit(3)}process.stdout.write('USER:'+row.username);db.close(function(){process.exit(0)})})})`
+        // Deleting the root user's sessions mirrors what the app itself does on a
+        // password change; without it the old refresh tokens keep working.
+        const script = `const bcrypt=require('/app/server/libs/bcryptjs');const sqlite3=require('/app/node_modules/sqlite3');const hash=bcrypt.hashSync('${password}',8);const db=new sqlite3.Database('${dbPath}');const fail=function(m){console.error('ERR '+m);process.exit(3)};db.get("SELECT id, username FROM users WHERE type='root' LIMIT 1",function(e,row){if(e){return fail(e.message)}if(!row){console.error('NOROOT');process.exit(2)}db.run("UPDATE users SET pash=?, isActive=1, isLocked=0 WHERE type='root'",[hash],function(e2){if(e2){return fail(e2.message)}db.run("DELETE FROM sessions WHERE userId=?",[row.id],function(e3){if(e3&&!/no such table/.test(e3.message)){return fail(e3.message)}process.stdout.write('USER:'+row.username);db.close(function(){process.exit(0)})})})})`
 
         const res = await sub.exec(['node', '-e', script])
 

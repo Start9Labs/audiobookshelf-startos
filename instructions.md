@@ -42,7 +42,7 @@ The first screen is the account-creation prompt on a fresh install, and the logi
 ### Actions
 
 - **External Libraries** — connect File Browser or Nextcloud as read-only libraries that Audiobookshelf scans and plays. Audiobookshelf never writes to them, so podcast downloads and uploads still go to its own libraries.
-- **Reset Admin Password** — if you are locked out of the root admin account, stop the service and run this action. It generates a new random password and shows it to you. Day-to-day password changes are done in the web app under your account settings.
+- **Reset Admin Password** — if you are locked out of the root admin account, stop the service and run this action. It generates a new random password, shows it to you, and signs that account out everywhere, so anyone still logged in has to sign in again with the new password. Day-to-day password changes are done in the web app under your account settings.
 
 ### Backups
 

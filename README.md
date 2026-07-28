@@ -99,10 +99,10 @@ The web app and the API (used by the mobile apps) are served on the same interfa
 
 ## Actions (StartOS UI)
 
-| Action               | ID                     | Purpose                                                                                                | Availability      | Input                                     | Output                                          |
-| -------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------ | ----------------- | ----------------------------------------- | ----------------------------------------------- |
-| External Libraries   | `external-libraries`   | Connect File Browser and/or Nextcloud as read-only external libraries Audiobookshelf can scan and play | Any status        | Multiselect of available storage services | —                                               |
-| Reset Admin Password | `reset-admin-password` | Generate a new random password for the root admin account and write it directly to the database        | Only when stopped | —                                         | Root username + new password (masked, copyable) |
+| Action               | ID                     | Purpose                                                                                                                          | Availability      | Input                                     | Output                                          |
+| -------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ----------------------------------------- | ----------------------------------------------- |
+| External Libraries   | `external-libraries`   | Connect File Browser and/or Nextcloud as read-only external libraries Audiobookshelf can scan and play                           | Any status        | Multiselect of available storage services | —                                               |
+| Reset Admin Password | `reset-admin-password` | Generate a new random password for the root admin account, write it directly to the database, and delete that account's sessions | Only when stopped | —                                         | Root username + new password (masked, copyable) |
 
 All actions are `visibility: 'enabled'`.
 
