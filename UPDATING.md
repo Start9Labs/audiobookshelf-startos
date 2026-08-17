@@ -15,6 +15,10 @@ The current pin lives in [`Dockerfile`](Dockerfile) at the `FROM ghcr.io/advplyr
 ## Applying the bump
 
 1. Bump the `FROM ghcr.io/advplyr/audiobookshelf:<new version>` tag in [`Dockerfile`](Dockerfile) (drop the leading `v` from the release tag).
+   Each patch in that Dockerfile asserts its anchor string with `grep` before rewriting it,
+   so an upstream bundle reshape fails the build instead of shipping a client that phones
+   home. Re-verify both patches on every bump — if an anchor is gone, find the new one
+   rather than relaxing the check to get a green build.
 2. Update `version` and `releaseNotes` in `startos/versions/current.ts` (e.g. `2.35.0:0` → `2.36.0:0`).
 3. Run `make` and confirm the build succeeds. **The build is the verification** — each client patch first asserts its anchor string is present, so if upstream reshaped the bundle the build fails loudly here rather than silently shipping an un-patched client.
 4. If the database schema, password hashing (`server/auth/LocalAuthStrategy.js`), or the `users` table changed upstream, re-verify the **Reset Admin Password** action against the new image.

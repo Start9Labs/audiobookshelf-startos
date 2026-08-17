@@ -6,14 +6,10 @@ Develop it inside a StartOS packaging workspace created by `start-cli s9pk init-
 which provides the packaging guide and agent context one level up. If you're reading this in a
 bare clone with no workspace, the full guide is at <https://docs.start9.com/packaging>.
 
-Work this package's `TODO.md` from top to bottom. Keep `README.md` (architecture, for developers and LLMs) and `instructions.md` (end-user docs) in sync with your changes.
+Work this package's `TODO.md` from top to bottom. Keep `README.md` (technical reference for an AI support or administering agent) and `instructions.md` (end-user docs) in sync with your changes.
 
 ## This repo
 
-- **Package id is `audiobookshelf`.**
-- **The service image is built locally from `./Dockerfile`, not a prebuilt upstream image** — it re-bases `ghcr.io/advplyr/audiobookshelf` to strip the web client's third-party phone-homes (the GitHub update check and the jsDelivr/Workbox CDN). Bump the `FROM` tag in the `Dockerfile` in lockstep with the version in `startos/versions/current.ts`. See `UPDATING.md`.
-- **File Browser and Nextcloud are optional dependencies** mounted read-only as external libraries, toggled by the External Libraries action (`startos/actions/externalLibraries.ts`); the selection is persisted in `store.json` and drives both the dependency set and the dependency mounts in `main.ts`.
-
-## Inspecting a running install
-
-To run a command inside the service's container (read its generated config, grep app logs), use `start-cli package attach audiobookshelf -n audiobookshelf-sub -- <cmd>`. Select the subcontainer by **name** with `-n` (the name passed to `SubContainer.of` in `main.ts` — here `audiobookshelf-sub`) or by image with `-i`. Note: `-s/--subcontainer` matches the internal **Guid**, not the name, so passing a name to `-s` fails with "no matching subcontainers".
+- **Keep the external-library mounts `readonly: true`.** That flag, not a convention, is what makes "Audiobookshelf cannot modify your Nextcloud files" true. It is also why the dependencies are `kind: 'exists'` rather than `'running'` — only the volume is needed, so a stopped File Browser must not stop the audiobook server.
+- **Adding an external library means editing four places in step:** the enum in `startos/fileModels/store.json.ts`, the multiselect values in `startos/actions/externalLibraries.ts`, the mount branch in `startos/main.ts`, and the dependency branch in `startos/dependencies.ts` — plus manifest metadata for the new dependency.
+- **`absdatabase.sqlite` is the application's, not ours.** `reset-admin-password` is the only code that touches it, and it is `only-stopped` for that reason. Don't add a second writer, and don't reach into it from `main`.
