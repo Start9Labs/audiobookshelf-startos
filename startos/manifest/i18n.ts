@@ -21,15 +21,15 @@ export const long = {
 
 export const filebrowserDescription = {
   en_US:
-    'Mount a File Browser data volume read-only so Audiobookshelf can scan an existing media library.',
+    'Mount a FileBrowser Quantum data volume read-only so Audiobookshelf can scan an existing media library.',
   es_ES:
-    'Monta un volumen de datos de File Browser en modo solo lectura para que Audiobookshelf pueda analizar una biblioteca multimedia existente.',
+    'Monta un volumen de datos de FileBrowser Quantum en modo solo lectura para que Audiobookshelf pueda analizar una biblioteca multimedia existente.',
   de_DE:
-    'Bindet ein File-Browser-Datenvolume schreibgeschützt ein, damit Audiobookshelf eine vorhandene Mediathek einlesen kann.',
+    'Bindet ein FileBrowser-Quantum-Datenvolume schreibgeschützt ein, damit Audiobookshelf eine vorhandene Mediathek einlesen kann.',
   pl_PL:
-    'Montuje wolumin danych File Browser tylko do odczytu, aby Audiobookshelf mógł przeskanować istniejącą bibliotekę multimediów.',
+    'Montuje wolumin danych FileBrowser Quantum tylko do odczytu, aby Audiobookshelf mógł przeskanować istniejącą bibliotekę multimediów.',
   fr_FR:
-    'Monte un volume de données File Browser en lecture seule afin qu’Audiobookshelf puisse analyser une médiathèque existante.',
+    'Monte un volume de données FileBrowser Quantum en lecture seule afin qu’Audiobookshelf puisse analyser une médiathèque existante.',
 }
 
 export const nextcloudDescription = {

@@ -16,10 +16,10 @@ const dict = {
   'The web interface of Audiobookshelf': 9,
 
   // actions/externalLibraries.ts
-  'File Browser': 10,
+  'FileBrowser Quantum': 10,
   Nextcloud: 11,
   'External Libraries': 12,
-  'Connect File Browser or Nextcloud as read-only external libraries. Audiobookshelf can scan and play media stored there but cannot modify it. Uploads and podcast downloads always go to the libraries managed by Audiobookshelf.': 13,
+  'Connect FileBrowser Quantum or Nextcloud as read-only external libraries. Audiobookshelf can scan and play media stored there but cannot modify it. Uploads and podcast downloads always go to the libraries managed by Audiobookshelf.': 13,
 
   // actions/resetAdminPassword.ts
   'Reset Admin Password': 14,

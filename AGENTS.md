@@ -26,6 +26,6 @@ verified, tried, and decided belongs in the commit message and the PR body.
 
 ## This repo
 
-- **Keep the external-library mounts `readonly: true`.** That flag, not a convention, is what makes "Audiobookshelf cannot modify your Nextcloud files" true. It is also why the dependencies are `kind: 'exists'` rather than `'running'` — only the volume is needed, so a stopped File Browser must not stop the audiobook server.
+- **Keep the external-library mounts `readonly: true`.** That flag, not a convention, is what makes "Audiobookshelf cannot modify your Nextcloud files" true. It is also why the dependencies are `kind: 'exists'` rather than `'running'` — only the volume is needed, so a stopped FileBrowser Quantum must not stop the audiobook server.
 - **Adding an external library means editing four places in step:** the enum in `startos/fileModels/store.json.ts`, the multiselect values in `startos/actions/externalLibraries.ts`, the mount branch in `startos/main.ts`, and the dependency branch in `startos/dependencies.ts` — plus manifest metadata for the new dependency.
 - **`absdatabase.sqlite` is the application's, not ours.** `reset-admin-password` is the only code that touches it, and it is `only-stopped` for that reason. Don't add a second writer, and don't reach into it from `main`.
