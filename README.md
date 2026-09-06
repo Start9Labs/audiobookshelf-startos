@@ -81,10 +81,10 @@ The only configuration passed to the application is environment — `PORT`, `CON
 
 Both are optional and neither is required to run: they appear only when selected in [External Libraries](#actions).
 
-| Dependency   | Kind     | Health checks | Mount                         | Why                                      |
-| ------------ | -------- | ------------- | ----------------------------- | ---------------------------------------- |
-| File Browser | `exists` | none          | `/mnt/filebrowser`, read-only | Scan and play media already stored there |
-| Nextcloud    | `exists` | none          | `/mnt/nextcloud`, read-only   | Scan and play media already stored there |
+| Dependency          | Kind     | Health checks | Mount                         | Why                                      |
+| ------------------- | -------- | ------------- | ----------------------------- | ---------------------------------------- |
+| FileBrowser Quantum | `exists` | none          | `/mnt/filebrowser`, read-only | Scan and play media already stored there |
+| Nextcloud           | `exists` | none          | `/mnt/nextcloud`, read-only   | Scan and play media already stored there |
 
 Only the volume is needed, so neither service has to be running for Audiobookshelf to start and read it.
 
@@ -114,7 +114,7 @@ Two actions, both user-facing.
 
 ### External Libraries
 
-Mounts File Browser's or Nextcloud's storage into Audiobookshelf, read-only. Run it after installing the other service and moving media into it.
+Mounts FileBrowser Quantum's or Nextcloud's storage into Audiobookshelf, read-only. Run it after installing the other service and moving media into it.
 
 - **What it changes:** `externalLibraries` in `store.json`, and through it the package's mount set and dependency set.
 - **Cost:** seconds, then a restart — the mounts can only change when the container is recreated.
@@ -153,7 +153,7 @@ Two checks, and the second exists to make a normal state legible rather than to 
 All four volumes are copied wholesale — `sdk.Backups.ofVolumes('config', 'metadata', 'audiobooks', 'podcasts')`. There is no dump step and nothing is excluded, which means **the media is in the backup**: an audiobook and podcast collection is usually the largest thing on the server, and the backup is sized accordingly.
 
 - **Included:** the database with users, libraries and listening progress; cover art and cached metadata; and every file in the two writable libraries.
-- **Not included:** anything in a connected external library. That storage belongs to File Browser or Nextcloud and is covered by that service's own backup, not this one's.
+- **Not included:** anything in a connected external library. That storage belongs to FileBrowser Quantum or Nextcloud and is covered by that service's own backup, not this one's.
 - **Restore:** complete, including accounts and progress. If an external library was connected, that dependency must be installed for the service to start with its mount.
 
 ## Limitations and Differences
