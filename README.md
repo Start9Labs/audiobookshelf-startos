@@ -59,7 +59,7 @@ Four volumes, split so that a backup, a media move, or a permissions problem tou
 | `audiobooks` | `/audiobooks` | The writable audiobook library — uploads land here                |
 | `podcasts`   | `/podcasts`   | The writable podcast library — subscriptions download here        |
 
-When an external library is connected, that service's storage appears as a fifth mount, read-only: `/mnt/filebrowser` or `/mnt/nextcloud`. Which folder inside it becomes a library is chosen in Audiobookshelf's own settings, not here.
+When an external library is connected, that service's storage appears as a further mount, read-only: `/mnt/nextexplorer`, `/mnt/filebrowser` or `/mnt/nextcloud`. Which folder inside it becomes a library is chosen in Audiobookshelf's own settings, not here.
 
 ## File Models
 
@@ -79,14 +79,15 @@ The only configuration passed to the application is environment — `PORT`, `CON
 
 ## Dependencies
 
-Both are optional and neither is required to run: they appear only when selected in [External Libraries](#actions).
+All three are optional and none is required to run: they appear only when selected in [External Libraries](#actions).
 
-| Dependency          | Kind     | Health checks | Mount                         | Why                                      |
-| ------------------- | -------- | ------------- | ----------------------------- | ---------------------------------------- |
-| FileBrowser Quantum | `exists` | none          | `/mnt/filebrowser`, read-only | Scan and play media already stored there |
-| Nextcloud           | `exists` | none          | `/mnt/nextcloud`, read-only   | Scan and play media already stored there |
+| Dependency          | Kind     | Health checks | Mount                          | Why                                      |
+| ------------------- | -------- | ------------- | ------------------------------ | ---------------------------------------- |
+| NextExplorer        | `exists` | none          | `/mnt/nextexplorer`, read-only | Scan and play media already stored there |
+| FileBrowser Quantum | `exists` | none          | `/mnt/filebrowser`, read-only  | Scan and play media already stored there |
+| Nextcloud           | `exists` | none          | `/mnt/nextcloud`, read-only    | Scan and play media already stored there |
 
-Only the volume is needed, so neither service has to be running for Audiobookshelf to start and read it.
+Only the volume is needed, so none of them has to be running for Audiobookshelf to start and read it. NextExplorer's volume root holds one directory per drive, so its media sits under `/mnt/nextexplorer/<drive>/`.
 
 The mounts are `readonly: true`, so Audiobookshelf cannot write to them even if asked to: uploads and podcast downloads always go to its own volumes.
 
@@ -114,7 +115,7 @@ Two actions, both user-facing.
 
 ### External Libraries
 
-Mounts FileBrowser Quantum's or Nextcloud's storage into Audiobookshelf, read-only. Run it after installing the other service and moving media into it.
+Mounts NextExplorer's, FileBrowser Quantum's or Nextcloud's storage into Audiobookshelf, read-only. Run it after installing the other service and moving media into it.
 
 - **What it changes:** `externalLibraries` in `store.json`, and through it the package's mount set and dependency set.
 - **Cost:** seconds, then a restart — the mounts can only change when the container is recreated.
@@ -153,7 +154,7 @@ Two checks, and the second exists to make a normal state legible rather than to 
 All four volumes are copied wholesale — `sdk.Backups.ofVolumes('config', 'metadata', 'audiobooks', 'podcasts')`. There is no dump step and nothing is excluded, which means **the media is in the backup**: an audiobook and podcast collection is usually the largest thing on the server, and the backup is sized accordingly.
 
 - **Included:** the database with users, libraries and listening progress; cover art and cached metadata; and every file in the two writable libraries.
-- **Not included:** anything in a connected external library. That storage belongs to FileBrowser Quantum or Nextcloud and is covered by that service's own backup, not this one's.
+- **Not included:** anything in a connected external library. That storage belongs to NextExplorer, FileBrowser Quantum or Nextcloud and is covered by that service's own backup, not this one's.
 - **Restore:** complete, including accounts and progress. If an external library was connected, that dependency must be installed for the service to start with its mount.
 
 ## Limitations and Differences
@@ -190,6 +191,7 @@ startos_managed_env_vars:
   - CONFIG_PATH
   - METADATA_PATH
 dependencies: # optional, kind "exists"; mounted read-only when selected
+  - nextexplorer # /mnt/nextexplorer
   - filebrowser # /mnt/filebrowser
   - nextcloud # /mnt/nextcloud
 interfaces:
