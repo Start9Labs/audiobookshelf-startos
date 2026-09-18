@@ -19,7 +19,7 @@ const dict = {
   'FileBrowser Quantum': 10,
   Nextcloud: 11,
   'External Libraries': 12,
-  'Connect FileBrowser Quantum or Nextcloud as read-only external libraries. Audiobookshelf can scan and play media stored there but cannot modify it. Uploads and podcast downloads always go to the libraries managed by Audiobookshelf.': 13,
+  'Connect NextExplorer, FileBrowser Quantum or Nextcloud as read-only external libraries. Audiobookshelf can scan and play media stored there but cannot modify it. Uploads and podcast downloads always go to the libraries managed by Audiobookshelf.': 13,
 
   // actions/resetAdminPassword.ts
   'Reset Admin Password': 14,
@@ -29,6 +29,7 @@ const dict = {
   'Your root admin password has been reset. Save these credentials in a password manager.': 18,
   Username: 19,
   Password: 20,
+  NextExplorer: 21,
 } as const
 
 /**

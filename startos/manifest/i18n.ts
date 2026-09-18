@@ -19,6 +19,19 @@ export const long = {
     'Audiobookshelf est un serveur multimédia auto-hébergé pour gérer et diffuser vos livres audio et podcasts. Il synchronise votre progression entre appareils, prend en charge plusieurs utilisateurs, télécharge automatiquement les podcasts et propose des applications open source pour Android et iOS.',
 }
 
+export const nextexplorerDescription = {
+  en_US:
+    'Mount a NextExplorer data volume read-only so Audiobookshelf can scan an existing media library.',
+  es_ES:
+    'Monta un volumen de datos de NextExplorer en modo solo lectura para que Audiobookshelf pueda analizar una biblioteca multimedia existente.',
+  de_DE:
+    'Bindet ein NextExplorer-Datenvolume schreibgeschützt ein, damit Audiobookshelf eine vorhandene Mediathek einlesen kann.',
+  pl_PL:
+    'Montuje wolumin danych NextExplorer tylko do odczytu, aby Audiobookshelf mógł przeskanować istniejącą bibliotekę multimediów.',
+  fr_FR:
+    'Monte un volume de données NextExplorer en lecture seule afin qu’Audiobookshelf puisse analyser une médiathèque existante.',
+}
+
 export const filebrowserDescription = {
   en_US:
     'Mount a FileBrowser Quantum data volume read-only so Audiobookshelf can scan an existing media library.',
