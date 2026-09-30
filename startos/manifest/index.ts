@@ -19,7 +19,7 @@ export const manifest = setupManifest({
   volumes: ['config', 'metadata', 'audiobooks', 'podcasts'],
   images: {
     audiobookshelf: {
-      // Built from ./Dockerfile (FROM ghcr.io/advplyr/audiobookshelf:2.37.0) to
+      // Built from ./Dockerfile (FROM ghcr.io/advplyr/audiobookshelf:2.37.1) to
       // strip the web client's third-party phone-homes. See the Dockerfile and
       // UPDATING.md; bump the FROM tag there in lockstep with the version below.
       source: { dockerBuild: {} },
