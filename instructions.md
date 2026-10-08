@@ -25,7 +25,7 @@ If your audiobooks or podcasts already live in NextExplorer, FileBrowser Quantum
 2. Run the **External Libraries** action and select the service(s).
 3. Audiobookshelf restarts with that storage mounted read-only. The whole service appears at a fixed location inside Audiobookshelf — `/mnt/nextexplorer` for NextExplorer, `/mnt/filebrowser` for FileBrowser Quantum, `/mnt/nextcloud` for Nextcloud.
 4. In Audiobookshelf, add a library (or edit an existing one) and use its **folder browser** to drill into the specific folder that holds that library's media:
-   - **NextExplorer** — each drive is a folder, so start with the drive name, e.g. `/mnt/nextexplorer/Files/Audiobooks`.
+   - **NextExplorer** — each location is a folder, so start with the location name, e.g. `/mnt/nextexplorer/Files/Audiobooks`.
    - **FileBrowser Quantum** — your files are at the top level, e.g. `/mnt/filebrowser/Audiobooks`.
    - **Nextcloud** — Nextcloud is multi-user, so under `/mnt/nextcloud/data` you will see one folder per Nextcloud account. Open the account that owns the media, e.g. `/mnt/nextcloud/data/<username>/files/Audiobooks`. Add more than one as separate libraries if your media is split across accounts.
 

@@ -7,6 +7,9 @@ const { InputSpec, Value } = sdk
 export const inputSpec = InputSpec.of({
   externalLibraries: Value.multiselect({
     name: i18n('External Libraries'),
+    description: i18n(
+      '- NextExplorer: its storage appears at /mnt/nextexplorer, one folder per location\n- FileBrowser Quantum: its storage appears at /mnt/filebrowser\n- Nextcloud: its storage appears at /mnt/nextcloud, with one folder per account under /mnt/nextcloud/data',
+    ),
     values: {
       nextexplorer: i18n('NextExplorer'),
       filebrowser: i18n('FileBrowser Quantum'),
