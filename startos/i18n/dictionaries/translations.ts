@@ -24,6 +24,7 @@ export default {
     19: 'Usuario',
     20: 'Contraseña',
     21: 'NextExplorer',
+    22: '- NextExplorer: su almacenamiento aparece en /mnt/nextexplorer, con una carpeta por ubicación\n- FileBrowser Quantum: su almacenamiento aparece en /mnt/filebrowser\n- Nextcloud: su almacenamiento aparece en /mnt/nextcloud, con una carpeta por cuenta en /mnt/nextcloud/data',
   },
   de_DE: {
     0: 'Starte Audiobookshelf!',
@@ -48,6 +49,7 @@ export default {
     19: 'Benutzername',
     20: 'Passwort',
     21: 'NextExplorer',
+    22: '- NextExplorer: Sein Speicher erscheint unter /mnt/nextexplorer, mit einem Ordner pro Speicherort\n- FileBrowser Quantum: Sein Speicher erscheint unter /mnt/filebrowser\n- Nextcloud: Sein Speicher erscheint unter /mnt/nextcloud, mit einem Ordner pro Konto unter /mnt/nextcloud/data',
   },
   pl_PL: {
     0: 'Uruchamianie Audiobookshelf!',
@@ -72,6 +74,7 @@ export default {
     19: 'Nazwa użytkownika',
     20: 'Hasło',
     21: 'NextExplorer',
+    22: '- NextExplorer: jego magazyn pojawia się w /mnt/nextexplorer, z jednym folderem na lokalizację\n- FileBrowser Quantum: jego magazyn pojawia się w /mnt/filebrowser\n- Nextcloud: jego magazyn pojawia się w /mnt/nextcloud, z jednym folderem na konto w /mnt/nextcloud/data',
   },
   fr_FR: {
     0: 'Démarrage d’Audiobookshelf !',
@@ -96,5 +99,6 @@ export default {
     19: 'Nom d’utilisateur',
     20: 'Mot de passe',
     21: 'NextExplorer',
+    22: '- NextExplorer : son stockage apparaît sous /mnt/nextexplorer, avec un dossier par emplacement\n- FileBrowser Quantum : son stockage apparaît sous /mnt/filebrowser\n- Nextcloud : son stockage apparaît sous /mnt/nextcloud, avec un dossier par compte sous /mnt/nextcloud/data',
   },
 } satisfies Record<string, LangDict>

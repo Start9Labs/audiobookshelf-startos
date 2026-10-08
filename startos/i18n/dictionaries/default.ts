@@ -30,6 +30,7 @@ const dict = {
   Username: 19,
   Password: 20,
   NextExplorer: 21,
+  '- NextExplorer: its storage appears at /mnt/nextexplorer, one folder per location\n- FileBrowser Quantum: its storage appears at /mnt/filebrowser\n- Nextcloud: its storage appears at /mnt/nextcloud, with one folder per account under /mnt/nextcloud/data': 22,
 } as const
 
 /**

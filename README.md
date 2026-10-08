@@ -71,7 +71,7 @@ One model, holding one setting: which other services are mounted in as read-only
 
 `externalLibraries` is a list of service ids. Init merges the file without overwriting the list, so the selection survives updates and restores; the action replaces it wholesale with whatever the form submitted. Nothing else writes it, and a value outside the known set is discarded rather than honoured.
 
-The setting has reach beyond its own file: `main` reads it to decide which dependency volumes to mount, and `setDependencies` reads it to decide which dependencies to declare. Both hold it in a reactive `const`, so changing the selection restarts the service with the new mounts.
+The setting has reach beyond its own file: `main` reads it to decide which dependency volumes to mount, and `dependencies.ts` reads it to decide which optional dependencies are enabled. Both hold it in a reactive `const`, so changing the selection restarts the service with the new mounts.
 
 **The application's own database is not a file model.** `absdatabase.sqlite` on the config volume holds users, libraries, listening progress, and every server setting; the package neither reads nor writes it in normal operation. The one exception is Reset Admin Password, which edits it directly while the service is stopped.
 
@@ -81,13 +81,13 @@ The only configuration passed to the application is environment — `PORT`, `CON
 
 All three are optional and none is required to run: they appear only when selected in [External Libraries](#actions).
 
-| Dependency          | Kind     | Health checks | Mount                          | Why                                      |
-| ------------------- | -------- | ------------- | ------------------------------ | ---------------------------------------- |
-| NextExplorer        | `exists` | none          | `/mnt/nextexplorer`, read-only | Scan and play media already stored there |
-| FileBrowser Quantum | `exists` | none          | `/mnt/filebrowser`, read-only  | Scan and play media already stored there |
-| Nextcloud           | `exists` | none          | `/mnt/nextcloud`, read-only    | Scan and play media already stored there |
+| Dependency          | Id             | Version range | Kind     | Volume mounted | Mount                          |
+| ------------------- | -------------- | ------------- | -------- | -------------- | ------------------------------ |
+| NextExplorer        | `nextexplorer` | `>=2.2.7:0`   | `exists` | `data`         | `/mnt/nextexplorer`, read-only |
+| FileBrowser Quantum | `filebrowser`  | `>=2.63.18:3` | `exists` | `data`         | `/mnt/filebrowser`, read-only  |
+| Nextcloud           | `nextcloud`    | `>=33.0.6:1`  | `exists` | `nextcloud`    | `/mnt/nextcloud`, read-only    |
 
-Only the volume is needed, so none of them has to be running for Audiobookshelf to start and read it. NextExplorer's volume root holds one directory per drive, so its media sits under `/mnt/nextexplorer/<drive>/`.
+Each is declared only while it is selected, and none has health checks. Only the volume is needed, so none of them has to be running for Audiobookshelf to start and read it. NextExplorer's volume root holds one directory per location, so its media sits under `/mnt/nextexplorer/<location>/`. Nextcloud's volume is its whole web root, so each account's files sit under `/mnt/nextcloud/data/<username>/files/`.
 
 The mounts are `readonly: true`, so Audiobookshelf cannot write to them even if asked to: uploads and podcast downloads always go to its own volumes.
 
@@ -191,9 +191,9 @@ startos_managed_env_vars:
   - CONFIG_PATH
   - METADATA_PATH
 dependencies: # optional, kind "exists"; mounted read-only when selected
-  - nextexplorer # /mnt/nextexplorer
-  - filebrowser # /mnt/filebrowser
-  - nextcloud # /mnt/nextcloud
+  - nextexplorer # >=2.2.7:0; /mnt/nextexplorer
+  - filebrowser # >=2.63.18:3; /mnt/filebrowser
+  - nextcloud # >=33.0.6:1; /mnt/nextcloud
 interfaces:
   ui: { type: ui, port: 80 }
 actions:

@@ -18,14 +18,22 @@ Freshly scaffolded? Work the
 guide page, not a file in this repo — read it, don't copy it in.
 
 Keep `README.md` (technical reference for an AI support or administering agent) and
-`instructions.md` (end-user docs) in sync with your changes.
+`instructions.md` (end-user docs) in sync with your changes. This file restates neither:
+whoever changes the package has both, so it carries only what they don't — repo mechanics,
+a change that looks right and is not, where the next thing gets added, a naming trap, a
+build or test invocation particular to this repo.
 
-**Bugs and feature requests are GitHub issues on this repo** — file them as you find them.
+**Fix a defect you spot rather than reporting it** — you have the package open and the
+context to be sure. File **a GitHub issue on this repo** only when the call isn't yours to
+make: you can't pin the cause down, two defensible fixes exist, or it's too large to ride on
+the work in hand. An open issue is a report, not a queue — implement one when you're asked
+to or when it's labelled `Approved`, then close it with `Closes #<n>`.
+
 Don't record work in the repo instead: no `TODO.md`, no `NOTES.md`, no `PLAN.md`. What you
 verified, tried, and decided belongs in the commit message and the PR body.
 
 ## This repo
 
-- **Keep the external-library mounts `readonly: true`.** That flag, not a convention, is what makes "Audiobookshelf cannot modify your Nextcloud files" true. It is also why the dependencies are `kind: 'exists'` rather than `'running'` — only the volume is needed, so a stopped FileBrowser Quantum must not stop the audiobook server.
-- **Adding an external library means editing four places in step:** the enum in `startos/fileModels/store.json.ts`, the multiselect values in `startos/actions/externalLibraries.ts`, the mount branch in `startos/main.ts`, and the dependency branch in `startos/dependencies.ts` — plus manifest metadata for the new dependency.
-- **`absdatabase.sqlite` is the application's, not ours.** `reset-admin-password` is the only code that touches it, and it is `only-stopped` for that reason. Don't add a second writer, and don't reach into it from `main`.
+- **Keep the external-library mounts `readonly: true` and the dependencies `kind: 'exists'`.** The flag is what makes "Audiobookshelf cannot modify your files" true, and a stopped provider must not stop the audiobook server.
+- **Adding an external library means editing four places in step:** the enum in `startos/fileModels/store.json.ts`, the multiselect values and description in `startos/actions/externalLibraries.ts`, the mount branch in `startos/main.ts`, and the dependency in `startos/dependencies.ts` (its description lives in `startos/manifest/i18n.ts`).
+- **Don't add a second writer to `absdatabase.sqlite`.** It is the application's; `reset-admin-password` is `only-stopped` because it writes the database the running app holds open.
