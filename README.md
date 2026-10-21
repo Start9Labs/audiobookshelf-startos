@@ -46,6 +46,8 @@ The image is the upstream image with two patches applied on top, because upstrea
 
 The two patches: the PWA service worker's Workbox import is repointed from a public CDN to a copy vendored into the image, and the client's release check against GitHub is repointed at a static same-origin file that always reports the running version as current. Each patch first asserts that the string it is about to rewrite is present, so an upstream bump that reshapes the bundle fails the build rather than silently shipping an unpatched client. Two further outbound calls need no patch: the Cast SDK is gated behind a server setting that defaults off, and upstream's own image already suppresses the server-side binary downloads.
 
+The image upgrades Alpine's `ca-certificates` and `ca-certificates-bundle` at build time. `NODE_OPTIONS=--use-openssl-ca` makes Node use that system trust store instead of its bundled roots.
+
 The Reset Admin Password action runs in a short-lived `reset-admin` subcontainer from the same image, with only the config volume mounted.
 
 ## Volume and Data Layout
