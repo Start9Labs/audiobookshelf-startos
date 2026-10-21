@@ -31,6 +31,11 @@ RUN npm pack workbox-cdn@5.1.4 \
 # --- Patched Audiobookshelf ---
 FROM ghcr.io/advplyr/audiobookshelf:2.37.1
 
+# The base image's CA store is only as current as its last release.
+RUN apk add --no-cache --upgrade ca-certificates ca-certificates-bundle
+# Node otherwise trusts its compiled-in roots instead of the system store.
+ENV NODE_OPTIONS=--use-openssl-ca
+
 # ABS serves the client under this base path by default
 # (index.js: process.env.ROUTER_BASE_PATH = devEnv.RouterBasePath ?? '/audiobookshelf').
 ARG BASE_PATH=/audiobookshelf
