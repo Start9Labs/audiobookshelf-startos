@@ -21,7 +21,7 @@
 # shipping an un-muted client. When bumping the FROM tag, re-verify per UPDATING.md.
 
 # --- Vendor Workbox (arch-independent JS; build on the native platform) ---
-FROM --platform=$BUILDPLATFORM node:20-alpine AS workbox
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS workbox
 WORKDIR /w
 RUN npm pack workbox-cdn@5.1.4 \
  && tar -xzf workbox-cdn-5.1.4.tgz \
@@ -29,7 +29,7 @@ RUN npm pack workbox-cdn@5.1.4 \
  && cp package/workbox/workbox-sw.js package/workbox/*.prod.js /workbox/
 
 # --- Patched Audiobookshelf ---
-FROM ghcr.io/advplyr/audiobookshelf:2.37.1
+FROM ghcr.io/advplyr/audiobookshelf:2.37.2
 
 # The base image's CA store is only as current as its last release.
 RUN apk add --no-cache --upgrade ca-certificates ca-certificates-bundle
