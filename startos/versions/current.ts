@@ -1,4 +1,5 @@
-import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
+import { IMPOSSIBLE, VersionInfo, z } from '@start9labs/start-sdk'
+import { libraries, storeJson } from '../fileModels/store.json'
 
 export const current = VersionInfo.of({
   version: '2.37.2:1',
@@ -15,7 +16,21 @@ export const current = VersionInfo.of({
       'Une bibliothèque externe peut désormais monter un seul dossier de NextExplorer, FileBrowser Quantum ou Nextcloud au lieu de tout son stockage ; définissez-le dans **Bibliothèques externes**. Une bibliothèque qui ne peut pas être montée, parce que son service n’est pas installé ou que le dossier manque, est ignorée et signalée par une vérification d’état pendant qu’Audiobookshelf continue de fonctionner.',
   },
   migrations: {
-    up: async ({ effects }) => {},
+    up: async ({ effects }) => {
+      const selected = z
+        .array(z.enum(libraries))
+        .catch([])
+        .parse(await storeJson.read((s) => s.externalLibraries).once())
+      await storeJson.merge(effects, {
+        externalLibraries: undefined,
+        ...Object.fromEntries(
+          selected.map((library) => [
+            library,
+            { selection: 'enabled', value: { subfolder: null } },
+          ]),
+        ),
+      })
+    },
     down: IMPOSSIBLE,
   },
 })

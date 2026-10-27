@@ -22,7 +22,7 @@ Audiobookshelf manages two writable libraries for you: **audiobooks** and **podc
 If your audiobooks or podcasts already live in NextExplorer, FileBrowser Quantum or Nextcloud, you can add them as read-only external libraries:
 
 1. Install NextExplorer (recommended), FileBrowser Quantum and/or Nextcloud first, and move your media into them.
-2. Run the **External Libraries** action and select the service(s). To let Audiobookshelf see only the folder that holds your media, rather than all of that service's storage, also enter that folder as the service's **subfolder**. This matters most for Nextcloud, whose storage also holds its configuration and every account's files:
+2. Run the **External Libraries** action and set each service that holds your media to **Enabled**. To let Audiobookshelf see only the folder that holds your media, rather than all of that service's storage, also enter that folder as its **Subfolder**. This matters most for Nextcloud, whose storage also holds its configuration and every account's files:
    - **NextExplorer** — start with the location, e.g. `Files/Audiobooks`.
    - **FileBrowser Quantum** — e.g. `Audiobooks`.
    - **Nextcloud** — start with `data/`, then the account name and `files/`, e.g. `data/admin/files/Audiobooks`.
@@ -34,7 +34,7 @@ If your audiobooks or podcasts already live in NextExplorer, FileBrowser Quantum
 
 The StartOS action decides what Audiobookshelf can see; you pick which folders become libraries in Audiobookshelf's own library settings. External libraries are read-only, so use them for collections you only scan and play. Anything Audiobookshelf needs to write — uploads and podcast downloads — must use the writable `/audiobooks` and `/podcasts` libraries.
 
-If a selected service is not installed, or its subfolder is later renamed or deleted, Audiobookshelf still starts, without that library, and its **External Libraries** health check says which one and why. Install the service or create the folder again and restart Audiobookshelf, or change the selection in the action.
+If an enabled service is not installed, or its subfolder is later renamed or deleted, Audiobookshelf still starts, without that library, and its **External Libraries** health check says which one and why. Install the service or create the folder again and restart Audiobookshelf, or change its setting in the action.
 
 > [!NOTE]
 > Reading Nextcloud files directly has limits: media kept in **Group Folders** or **External Storage** is not under `data/<username>/files/`, and if Nextcloud's **server-side encryption** is enabled the files on disk are encrypted and Audiobookshelf cannot read them. For those cases, use NextExplorer instead, or copy the media into Audiobookshelf's own `/audiobooks` and `/podcasts` libraries.

@@ -1,5 +1,5 @@
 import { T } from '@start9labs/start-sdk'
-import { StoreType, storeJson } from './fileModels/store.json'
+import { Library, storeJson } from './fileModels/store.json'
 import {
   filebrowserDescription,
   nextcloudDescription,
@@ -7,12 +7,11 @@ import {
 } from './manifest/i18n'
 import { sdk } from './sdk'
 
-const selected =
-  (id: StoreType['externalLibraries'][number]) =>
+const isEnabled =
+  (library: Library) =>
   async ({ effects }: { effects: T.Effects }) =>
-    (
-      (await storeJson.read((s) => s.externalLibraries).const(effects)) ?? []
-    ).includes(id)
+    (await storeJson.read((s) => s[library].selection).const(effects)) ===
+    'enabled'
 
 export const dependencies = sdk.Dependencies.of()
   .addDependency(
@@ -24,7 +23,7 @@ export const dependencies = sdk.Dependencies.of()
       },
       versionRange: '>=2.2.7:0',
       kind: 'exists',
-      enabled: selected('nextexplorer'),
+      enabled: isEnabled('nextexplorer'),
     }),
   )
   .addDependency(
@@ -36,7 +35,7 @@ export const dependencies = sdk.Dependencies.of()
       },
       versionRange: '>=2.63.18:3',
       kind: 'exists',
-      enabled: selected('filebrowser'),
+      enabled: isEnabled('filebrowser'),
     }),
   )
   .addDependency(
@@ -48,6 +47,6 @@ export const dependencies = sdk.Dependencies.of()
       },
       versionRange: '>=33.0.6:1',
       kind: 'exists',
-      enabled: selected('nextcloud'),
+      enabled: isEnabled('nextcloud'),
     }),
   )
