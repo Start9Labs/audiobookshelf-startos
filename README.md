@@ -71,7 +71,7 @@ One model, holding one setting: which other services are mounted in as read-only
 | -------------------- | ------ | ----------------------- | --------------------------------------------- |
 | `/config/store.json` | JSON   | Yes — `FileHelper.json` | Every init, and the External Libraries action |
 
-`externalLibraries` is a list of service ids. `nextexplorerSubfolder`, `filebrowserSubfolder` and `nextcloudSubfolder` each hold a path relative to that service's volume root, or `null` to mount the whole volume. Init merges the file without overwriting any of them, so the selection survives updates and restores; the action replaces all four with whatever the form submitted. Nothing else writes them, and a list value outside the known set is discarded rather than honoured.
+`nextexplorer`, `filebrowser` and `nextcloud` each hold the form's setting for that service: `selection` is `disabled` or `enabled`, and while it is `enabled`, `value.subfolder` is a path relative to the service's volume root, or `null` to mount the whole volume. Init merges the file without overwriting them, so the settings survive updates and restores, and the action writes all three from whatever the form submitted. An update from a release that kept a single `externalLibraries` list enables each listed service with no subfolder. A setting that does not parse is reset to `disabled` rather than honoured.
 
 The setting has reach beyond its own file: `main` reads it to decide which dependency volumes, or folders of them, to mount, and `dependencies.ts` reads it to decide which optional dependencies are enabled. Both hold it in a reactive `const`, so changing the selection or a subfolder restarts the service with the new mounts.
 
@@ -81,7 +81,7 @@ The only configuration passed to the application is environment — `PORT`, `CON
 
 ## Dependencies
 
-All three are optional and none is required to run: they appear only when selected in [External Libraries](#actions).
+All three are optional and none is required to run: they appear only when enabled in [External Libraries](#actions).
 
 | Dependency          | Id             | Version range | Kind     | Volume mounted | Mount                          |
 | ------------------- | -------------- | ------------- | -------- | -------------- | ------------------------------ |
@@ -89,7 +89,7 @@ All three are optional and none is required to run: they appear only when select
 | FileBrowser Quantum | `filebrowser`  | `>=2.63.18:3` | `exists` | `data`         | `/mnt/filebrowser`, read-only  |
 | Nextcloud           | `nextcloud`    | `>=33.0.6:1`  | `exists` | `nextcloud`    | `/mnt/nextcloud`, read-only    |
 
-Each is declared only while it is selected, and none has health checks. Only the volume is needed, so none of them has to be running for Audiobookshelf to start and read it. NextExplorer's volume root holds one directory per location, so its media sits under `/mnt/nextexplorer/<location>/`. Nextcloud's volume is its whole web root, so each account's files sit under `/mnt/nextcloud/data/<username>/files/`, beside `config/config.php` with its database password and instance secret.
+Each is declared only while it is enabled, and none has health checks. Only the volume is needed, so none of them has to be running for Audiobookshelf to start and read it. NextExplorer's volume root holds one directory per location, so its media sits under `/mnt/nextexplorer/<location>/`. Nextcloud's volume is its whole web root, so each account's files sit under `/mnt/nextcloud/data/<username>/files/`, beside `config/config.php` with its database password and instance secret.
 
 A subfolder set for a service in [External Libraries](#actions) is mounted in place of the whole volume, at the path it has in that volume: subfolder `data/admin/files/Books` appears at `/mnt/nextcloud/data/admin/files/Books`, and the directories above it are empty. A library folder in Audiobookshelf therefore keeps its path whether or not a subfolder is set. It is given relative to the volume root: `<location>/…` for NextExplorer, `data/<username>/files/…` for Nextcloud.
 
@@ -121,11 +121,11 @@ Two actions, both user-facing.
 
 Mounts NextExplorer's, FileBrowser Quantum's or Nextcloud's storage, or one subfolder of it, into Audiobookshelf, read-only. Run it after installing the other service and moving media into it.
 
-- **What it changes:** `externalLibraries` and the three subfolder keys in `store.json`, and through them the package's mount set and dependency set.
-- **Input:** the services to mount, and an optional subfolder for each. A subfolder must be a relative path with no `..` segment; an empty one mounts the whole volume.
-- **Validation:** before saving, each selected service's subfolder is mounted in a throwaway subcontainer. If that fails, because the folder does not exist or the service is not installed, the action fails with a message naming the folder and saves nothing.
+- **What it changes:** the `nextexplorer`, `filebrowser` and `nextcloud` settings in `store.json`, and through them the package's mount set and dependency set.
+- **Input:** one setting per service, Disabled by default; Enabled reveals an optional subfolder. A subfolder must be a relative path with no `..` segment; an empty one mounts the whole volume.
+- **Validation:** before saving, each enabled service's subfolder is mounted in a throwaway subcontainer. If that fails, because the folder does not exist or the service is not installed, the action fails with a message naming the folder and saves nothing.
 - **Cost:** seconds, then a restart — the mounts can only change when the container is recreated.
-- **Repeat safety:** safe to re-run; the form is pre-filled with the current settings and replaces them wholesale, so clearing a checkbox removes that mount and clearing a subfolder mounts the whole volume again.
+- **Repeat safety:** safe to re-run; the form is pre-filled with the current settings and saved as a whole, so setting a service to Disabled removes its mount and clearing a subfolder mounts the whole volume again.
 - **What happens next:** the storage appears at a fixed path inside the container, and a subfolder at its own path below it. Nothing becomes a library until you point one at a folder under it in Audiobookshelf's own settings — this action connects storage, it does not create libraries.
 
 ### Reset Admin Password
@@ -144,19 +144,19 @@ None. This package raises no tasks, so the service is never held on a prompt and
 
 ## Health Checks
 
-Two checks, and the second exists to make a normal state legible rather than to detect a fault. A third appears only when a selected external library cannot be mounted.
+Two checks, and the second exists to make a normal state legible rather than to detect a fault. A third appears only when an enabled external library cannot be mounted.
 
-| Check                | Displayed            | Method                                                | Grace Period |
-| -------------------- | -------------------- | ----------------------------------------------------- | ------------ |
-| `primary`            | "Web Interface"      | HTTP `GET /healthcheck` on the UI port                | SDK default  |
-| `initial-setup`      | "Initial Setup"      | The application's `/status`, read for `isInit`        | —            |
-| `external-libraries` | "External Libraries" | Each selected service test-mounted, before the daemon | 0            |
+| Check                | Displayed            | Method                                               | Grace Period |
+| -------------------- | -------------------- | ---------------------------------------------------- | ------------ |
+| `primary`            | "Web Interface"      | HTTP `GET /healthcheck` on the UI port               | SDK default  |
+| `initial-setup`      | "Initial Setup"      | The application's `/status`, read for `isInit`       | —            |
+| `external-libraries` | "External Libraries" | Each enabled service test-mounted, before the daemon | 0            |
 
 **`primary` failing** means the server is not answering — read the service logs for a database or startup error.
 
 **`initial-setup` reports `loading`, not a failure, until the root account is created**, and succeeds permanently once it exists. It reports `starting` while the server has not answered yet, which is expected during startup. A user asking why a fresh install shows an incomplete check has usually not opened the web UI yet.
 
-**`external-libraries` is present only when it fails.** At each start, `main` test-mounts every selected service, its subfolder if one is set, in a throwaway subcontainer. One that fails is left out of the mount set and named by the check: as not installed when even its whole volume will not mount, which also covers a volume that is missing, and otherwise as a subfolder not found, typically one renamed or deleted in that service after it was set. Audiobookshelf itself starts normally, without that mount. The log lines before the check carry the mount error. Installing the service or creating the folder and then restarting, or changing the selection in External Libraries, removes the check.
+**`external-libraries` is present only when it fails.** At each start, `main` test-mounts every enabled service, its subfolder if one is set, in a throwaway subcontainer. One that fails is left out of the mount set and named by the check: as not installed when even its whole volume will not mount, which also covers a volume that is missing, and otherwise as a subfolder not found, typically one renamed or deleted in that service after it was set. Audiobookshelf itself starts normally, without that mount. The log lines before the check carry the mount error. Installing the service or creating the folder and then restarting, or changing its setting in External Libraries, removes the check.
 
 ## Backups and Restore
 
@@ -200,7 +200,7 @@ startos_managed_env_vars:
   - PORT
   - CONFIG_PATH
   - METADATA_PATH
-dependencies: # optional, kind "exists"; whole volume or one subfolder, mounted read-only when selected
+dependencies: # optional, kind "exists"; whole volume or one subfolder, mounted read-only when enabled
   - nextexplorer # >=2.2.7:0; /mnt/nextexplorer
   - filebrowser # >=2.63.18:3; /mnt/filebrowser
   - nextcloud # >=33.0.6:1; /mnt/nextcloud
@@ -213,5 +213,5 @@ tasks: []
 health_checks:
   - primary # displayed "Web Interface"
   - initial-setup # displayed "Initial Setup"; loading until the root account exists
-  - external-libraries # displayed "External Libraries"; present only when a selected library could not be mounted
+  - external-libraries # displayed "External Libraries"; present only when an enabled library could not be mounted
 ```

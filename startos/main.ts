@@ -1,4 +1,4 @@
-import { storeJson } from './fileModels/store.json'
+import { libraries, storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
@@ -46,8 +46,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
     })
 
   const unmounted: string[] = []
-  for (const library of store?.externalLibraries ?? []) {
-    const subfolder = store?.[`${library}Subfolder` as const] || null
+  for (const library of libraries) {
+    const settings = store?.[library]
+    if (settings?.selection !== 'enabled') continue
+    const subfolder = settings.value.subfolder || null
     if (await canMount(effects, library, subfolder)) {
       mounts = mountLibrary(mounts, library, subfolder)
     } else {
@@ -58,7 +60,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
               { subfolder, library: libraryTitles[library] },
             )
           : i18n(
-              '${library} is not installed, so it is not mounted. Install it and restart Audiobookshelf, or deselect it in External Libraries.',
+              '${library} is not installed, so it is not mounted. Install it and restart Audiobookshelf, or disable it in External Libraries.',
               { library: libraryTitles[library] },
             ),
       )

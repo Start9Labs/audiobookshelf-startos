@@ -1,58 +1,74 @@
-import { storeJson } from '../fileModels/store.json'
+import { Library, libraries, storeJson } from '../fileModels/store.json'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { canMount, libraryTitles } from '../utils'
 
-const { InputSpec, Value } = sdk
+const { InputSpec, Value, Variants } = sdk
 
-const subfolderPatterns = [
-  {
-    regex: '^(?!/)(?!(.*/)?\\.\\.(/|$)).*$',
-    description: i18n(
-      'Must be a relative path, such as Audiobooks, with no leading / and no .. segments',
-    ),
-  },
-]
+const libraryUnion = (
+  library: Library,
+  description: string,
+  subfolderDescription: string,
+  placeholder: string,
+) =>
+  Value.union({
+    name: libraryTitles[library],
+    description,
+    default: 'disabled',
+    variants: Variants.of({
+      disabled: { name: i18n('Disabled'), spec: InputSpec.of({}) },
+      enabled: {
+        name: i18n('Enabled'),
+        spec: InputSpec.of({
+          subfolder: Value.text({
+            name: i18n('Subfolder'),
+            description: subfolderDescription,
+            required: false,
+            default: null,
+            placeholder,
+            patterns: [
+              {
+                regex: '^(?!/)(?!(.*/)?\\.\\.(/|$)).*$',
+                description: i18n(
+                  'Must be a relative path, such as Audiobooks, with no leading / and no .. segments',
+                ),
+              },
+            ],
+          }),
+        }),
+      },
+    }),
+  })
 
 export const inputSpec = InputSpec.of({
-  externalLibraries: Value.multiselect({
-    name: i18n('External Libraries'),
-    description: i18n(
-      '- NextExplorer: its storage appears at /mnt/nextexplorer, one folder per location\n- FileBrowser Quantum: its storage appears at /mnt/filebrowser\n- Nextcloud: its storage appears at /mnt/nextcloud, with one folder per account under /mnt/nextcloud/data',
+  nextexplorer: libraryUnion(
+    'nextexplorer',
+    i18n(
+      'When enabled, its storage appears at /mnt/nextexplorer, one folder per location.',
     ),
-    values: libraryTitles,
-    default: [],
-  }),
-  nextexplorerSubfolder: Value.text({
-    name: i18n('NextExplorer Subfolder'),
-    description: i18n(
+    i18n(
       "Mount only this folder, starting with its location, e.g. Files/Audiobooks, which then appears at /mnt/nextexplorer/Files/Audiobooks. Leave empty to mount all of NextExplorer's storage.",
     ),
-    required: false,
-    default: null,
-    placeholder: 'Files/Audiobooks',
-    patterns: subfolderPatterns,
-  }),
-  filebrowserSubfolder: Value.text({
-    name: i18n('FileBrowser Quantum Subfolder'),
-    description: i18n(
+    'Files/Audiobooks',
+  ),
+  filebrowser: libraryUnion(
+    'filebrowser',
+    i18n('When enabled, its storage appears at /mnt/filebrowser.'),
+    i18n(
       "Mount only this folder, e.g. Audiobooks, which then appears at /mnt/filebrowser/Audiobooks. Leave empty to mount all of FileBrowser Quantum's storage.",
     ),
-    required: false,
-    default: null,
-    placeholder: 'Audiobooks',
-    patterns: subfolderPatterns,
-  }),
-  nextcloudSubfolder: Value.text({
-    name: i18n('Nextcloud Subfolder'),
-    description: i18n(
+    'Audiobooks',
+  ),
+  nextcloud: libraryUnion(
+    'nextcloud',
+    i18n(
+      'When enabled, its storage appears at /mnt/nextcloud, with one folder per account under /mnt/nextcloud/data.',
+    ),
+    i18n(
       "Mount only this folder, e.g. data/admin/files/Audiobooks for the account named admin, which then appears at /mnt/nextcloud/data/admin/files/Audiobooks. Leave empty to mount all of Nextcloud's storage, including its configuration.",
     ),
-    required: false,
-    default: null,
-    placeholder: 'data/admin/files/Audiobooks',
-    patterns: subfolderPatterns,
-  }),
+    'data/admin/files/Audiobooks',
+  ),
 })
 
 export const externalLibraries = sdk.Action.withInput(
@@ -79,8 +95,10 @@ export const externalLibraries = sdk.Action.withInput(
 
   // the execution function
   async ({ effects, input }) => {
-    for (const library of input.externalLibraries) {
-      const subfolder = input[`${library}Subfolder` as const]
+    for (const library of libraries) {
+      const settings = input[library]
+      const subfolder =
+        settings.selection === 'enabled' && settings.value.subfolder
       if (subfolder && !(await canMount(effects, library, subfolder))) {
         throw new Error(
           i18n(

@@ -2,7 +2,7 @@ import { T } from '@start9labs/start-sdk'
 import { manifest as filebrowserManifest } from 'filebrowser-startos/startos/manifest'
 import { manifest as nextcloudManifest } from 'nextcloud-startos/startos/manifest'
 import { manifest as nextexplorerManifest } from 'nextexplorer-startos/startos/manifest'
-import { StoreType } from './fileModels/store.json'
+import { Library } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
 
@@ -21,8 +21,6 @@ export const configMounts = sdk.Mounts.of().mountVolume({
   mountpoint: configPath,
   readonly: false,
 })
-
-type Library = StoreType['externalLibraries'][number]
 
 export const libraryTitles = {
   nextexplorer: i18n('NextExplorer'),
