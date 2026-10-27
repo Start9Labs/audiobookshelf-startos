@@ -31,6 +31,16 @@ const dict = {
   Password: 20,
   NextExplorer: 21,
   '- NextExplorer: its storage appears at /mnt/nextexplorer, one folder per location\n- FileBrowser Quantum: its storage appears at /mnt/filebrowser\n- Nextcloud: its storage appears at /mnt/nextcloud, with one folder per account under /mnt/nextcloud/data': 22,
+  'NextExplorer Subfolder': 23,
+  'FileBrowser Quantum Subfolder': 24,
+  'Nextcloud Subfolder': 25,
+  "Mount only this folder, starting with its location, e.g. Files/Audiobooks, which then appears at /mnt/nextexplorer/Files/Audiobooks. Leave empty to mount all of NextExplorer's storage.": 26,
+  "Mount only this folder, e.g. Audiobooks, which then appears at /mnt/filebrowser/Audiobooks. Leave empty to mount all of FileBrowser Quantum's storage.": 27,
+  "Mount only this folder, e.g. data/admin/files/Audiobooks for the account named admin, which then appears at /mnt/nextcloud/data/admin/files/Audiobooks. Leave empty to mount all of Nextcloud's storage, including its configuration.": 28,
+  'Must be a relative path, such as Audiobooks, with no leading / and no .. segments': 29,
+  'The folder "${subfolder}" was not found in ${library}. Check the path, and that ${library} is installed.': 30,
+  'The folder "${subfolder}" was not found in ${library}, so it is not mounted. Create it there and restart Audiobookshelf, or change it in External Libraries.': 31,
+  '${library} is not installed, so it is not mounted. Install it and restart Audiobookshelf, or deselect it in External Libraries.': 32,
 } as const
 
 /**
