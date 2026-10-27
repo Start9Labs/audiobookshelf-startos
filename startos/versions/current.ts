@@ -1,17 +1,18 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '2.37.2:0',
+  version: '2.37.2:1',
   releaseNotes: {
     en_US:
-      'Updated Audiobookshelf to 2.37.2. Includes the October 2026 Node.js security fixes. Fixes file copy and move failing with EPERM on some systems, RSS feed covers not updating after a cover change, Audible searches that return no products, and uploads that repeat file fields. Full release notes: https://github.com/advplyr/audiobookshelf/releases',
+      'An external library can now mount just one folder of NextExplorer, FileBrowser Quantum or Nextcloud instead of its whole storage; set it under **External Libraries**. A library that cannot be mounted, because its service is not installed or the folder is missing, is left out and named by a health check while Audiobookshelf runs.',
     es_ES:
-      'Audiobookshelf actualizado a 2.37.2. Incluye las correcciones de seguridad de Node.js de octubre de 2026. Corrige los fallos con EPERM al copiar y mover archivos en algunos sistemas, las portadas de los feeds RSS que no se actualizaban tras cambiar la portada, las búsquedas de Audible sin productos y las subidas que repiten campos de archivo. Notas de la versión completas: https://github.com/advplyr/audiobookshelf/releases',
+      'Una biblioteca externa ahora puede montar solo una carpeta de NextExplorer, FileBrowser Quantum o Nextcloud en lugar de todo su almacenamiento; configúrala en **Bibliotecas externas**. Una biblioteca que no se puede montar, porque su servicio no está instalado o falta la carpeta, se omite y una comprobación de estado la indica mientras Audiobookshelf sigue funcionando.',
     de_DE:
-      'Audiobookshelf auf 2.37.2 aktualisiert. Enthält die Node.js-Sicherheitskorrekturen vom Oktober 2026. Behebt fehlschlagendes Kopieren und Verschieben von Dateien mit EPERM auf manchen Systemen, nach einem Coverwechsel nicht aktualisierte Cover in RSS-Feeds, Audible-Suchen ohne Produkte sowie Uploads mit wiederholten Dateifeldern. Vollständige Versionshinweise: https://github.com/advplyr/audiobookshelf/releases',
+      'Eine externe Bibliothek kann jetzt nur einen Ordner von NextExplorer, FileBrowser Quantum oder Nextcloud statt des gesamten Speichers einbinden; legen Sie ihn unter **Externe Bibliotheken** fest. Eine Bibliothek, die sich nicht einbinden lässt, weil ihr Dienst nicht installiert ist oder der Ordner fehlt, wird ausgelassen und von einer Zustandsprüfung benannt, während Audiobookshelf weiterläuft.',
     pl_PL:
-      'Zaktualizowano Audiobookshelf do 2.37.2. Zawiera poprawki bezpieczeństwa Node.js z października 2026. Naprawiono kopiowanie i przenoszenie plików kończące się błędem EPERM na niektórych systemach, nieaktualizowane okładki w kanałach RSS po zmianie okładki, wyszukiwania w Audible bez produktów oraz przesyłanie z powtórzonymi polami plików. Pełne informacje o wydaniu: https://github.com/advplyr/audiobookshelf/releases',
-    fr_FR: `Audiobookshelf mis à jour vers 2.37.2. Inclut les correctifs de sécurité Node.js d'octobre 2026. Corrige l'échec avec EPERM de la copie et du déplacement de fichiers sur certains systèmes, les couvertures des flux RSS non mises à jour après un changement de couverture, les recherches Audible sans produits et les envois qui répètent des champs de fichier. Notes de version complètes : https://github.com/advplyr/audiobookshelf/releases`,
+      'Biblioteka zewnętrzna może teraz montować tylko jeden folder NextExplorer, FileBrowser Quantum lub Nextcloud zamiast całego magazynu; ustaw go w **Biblioteki zewnętrzne**. Biblioteka, której nie można zamontować, bo jej usługa nie jest zainstalowana lub brakuje folderu, jest pomijana i wskazywana przez kontrolę stanu, a Audiobookshelf działa dalej.',
+    fr_FR:
+      'Une bibliothèque externe peut désormais monter un seul dossier de NextExplorer, FileBrowser Quantum ou Nextcloud au lieu de tout son stockage ; définissez-le dans **Bibliothèques externes**. Une bibliothèque qui ne peut pas être montée, parce que son service n’est pas installé ou que le dossier manque, est ignorée et signalée par une vérification d’état pendant qu’Audiobookshelf continue de fonctionner.',
   },
   migrations: {
     up: async ({ effects }) => {},

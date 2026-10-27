@@ -1,13 +1,13 @@
-import { manifest as filebrowserManifest } from 'filebrowser-startos/startos/manifest'
-import { manifest as nextcloudManifest } from 'nextcloud-startos/startos/manifest'
-import { manifest as nextexplorerManifest } from 'nextexplorer-startos/startos/manifest'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
   audiobooksPath,
+  canMount,
   configPath,
+  libraryTitles,
   metadataPath,
+  mountLibrary,
   podcastsPath,
   uiPort,
 } from './utils'
@@ -17,8 +17,7 @@ const statusScript = `require('http').get('http://127.0.0.1:${uiPort}/status',fu
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info(i18n('Starting Audiobookshelf!'))
 
-  const externalLibraries =
-    (await storeJson.read((s) => s.externalLibraries).const(effects)) ?? []
+  const store = await storeJson.read().const(effects)
 
   let mounts = sdk.Mounts.of()
     .mountVolume({
@@ -46,34 +45,24 @@ export const main = sdk.setupMain(async ({ effects }) => {
       readonly: false,
     })
 
-  if (externalLibraries.includes('nextexplorer')) {
-    mounts = mounts.mountDependency<typeof nextexplorerManifest>({
-      dependencyId: 'nextexplorer',
-      volumeId: 'data',
-      subpath: null,
-      mountpoint: '/mnt/nextexplorer',
-      readonly: true,
-    })
-  }
-
-  if (externalLibraries.includes('filebrowser')) {
-    mounts = mounts.mountDependency<typeof filebrowserManifest>({
-      dependencyId: 'filebrowser',
-      volumeId: 'data',
-      subpath: null,
-      mountpoint: '/mnt/filebrowser',
-      readonly: true,
-    })
-  }
-
-  if (externalLibraries.includes('nextcloud')) {
-    mounts = mounts.mountDependency<typeof nextcloudManifest>({
-      dependencyId: 'nextcloud',
-      volumeId: 'nextcloud',
-      subpath: null,
-      mountpoint: '/mnt/nextcloud',
-      readonly: true,
-    })
+  const unmounted: string[] = []
+  for (const library of store?.externalLibraries ?? []) {
+    const subfolder = store?.[`${library}Subfolder` as const] || null
+    if (await canMount(effects, library, subfolder)) {
+      mounts = mountLibrary(mounts, library, subfolder)
+    } else {
+      unmounted.push(
+        subfolder && (await canMount(effects, library, null))
+          ? i18n(
+              'The folder "${subfolder}" was not found in ${library}, so it is not mounted. Create it there and restart Audiobookshelf, or change it in External Libraries.',
+              { subfolder, library: libraryTitles[library] },
+            )
+          : i18n(
+              '${library} is not installed, so it is not mounted. Install it and restart Audiobookshelf, or deselect it in External Libraries.',
+              { library: libraryTitles[library] },
+            ),
+      )
+    }
   }
 
   const subcontainer = sdk.SubContainer.of(
@@ -133,4 +122,17 @@ export const main = sdk.setupMain(async ({ effects }) => {
       },
       requires: ['primary'],
     })
+    .addHealthCheck('external-libraries', () =>
+      unmounted.length
+        ? {
+            ready: {
+              display: i18n('External Libraries'),
+              gracePeriod: 0,
+              trigger: sdk.trigger.onceTrigger,
+              fn: () => ({ result: 'failure', message: unmounted.join(' ') }),
+            },
+            requires: [],
+          }
+        : null,
+    )
 })
