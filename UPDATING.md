@@ -19,9 +19,7 @@ The current pin lives in [`Dockerfile`](Dockerfile) at the `FROM ghcr.io/advplyr
    so an upstream bundle reshape fails the build instead of shipping a client that phones
    home. Re-verify both patches on every bump — if an anchor is gone, find the new one
    rather than relaxing the check to get a green build.
-2. Update `version` and `releaseNotes` in `startos/versions/current.ts` (e.g. `2.35.0:0` → `2.36.0:0`).
-3. Run `make` and confirm the build succeeds. **The build is the verification** — each client patch first asserts its anchor string is present, so if upstream reshaped the bundle the build fails loudly here rather than silently shipping an un-patched client.
-4. If the database schema, password hashing (`server/auth/LocalAuthStrategy.js`), or the `users` table changed upstream, re-verify the **Reset Admin Password** action against the new image.
+2. If the database schema, password hashing (`server/auth/LocalAuthStrategy.js`), or the `users` table changed upstream, re-verify the **Reset Admin Password** action against the new image.
 
 ## If a client patch assertion fails
 
