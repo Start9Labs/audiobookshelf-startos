@@ -1,36 +1,21 @@
-import { IMPOSSIBLE, VersionInfo, z } from '@start9labs/start-sdk'
-import { libraries, storeJson } from '../fileModels/store.json'
+import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '2.37.2:1',
+  version: '2.37.2:2',
   releaseNotes: {
     en_US:
-      'An external library can now mount just one folder of NextExplorer, FileBrowser Quantum or Nextcloud instead of its whole storage; set it under **External Libraries**. A library that cannot be mounted, because its service is not installed or the folder is missing, is left out and named by a health check while Audiobookshelf runs.',
+      "Requires StartOS 0.4.1 or later. Audiobookshelf now sees only Nextcloud's user files, not its configuration; a Nextcloud subfolder must start with data/.",
     es_ES:
-      'Una biblioteca externa ahora puede montar solo una carpeta de NextExplorer, FileBrowser Quantum o Nextcloud en lugar de todo su almacenamiento; configúrala en **Bibliotecas externas**. Una biblioteca que no se puede montar, porque su servicio no está instalado o falta la carpeta, se omite y una comprobación de estado la indica mientras Audiobookshelf sigue funcionando.',
+      'Requiere StartOS 0.4.1 o posterior. Audiobookshelf ahora solo ve los archivos de usuario de Nextcloud, no su configuración; una subcarpeta de Nextcloud debe empezar por data/.',
     de_DE:
-      'Eine externe Bibliothek kann jetzt nur einen Ordner von NextExplorer, FileBrowser Quantum oder Nextcloud statt des gesamten Speichers einbinden; legen Sie ihn unter **Externe Bibliotheken** fest. Eine Bibliothek, die sich nicht einbinden lässt, weil ihr Dienst nicht installiert ist oder der Ordner fehlt, wird ausgelassen und von einer Zustandsprüfung benannt, während Audiobookshelf weiterläuft.',
+      'Erfordert StartOS 0.4.1 oder neuer. Audiobookshelf sieht jetzt nur noch die Benutzerdateien von Nextcloud, nicht dessen Konfiguration; ein Nextcloud-Unterordner muss mit data/ beginnen.',
     pl_PL:
-      'Biblioteka zewnętrzna może teraz montować tylko jeden folder NextExplorer, FileBrowser Quantum lub Nextcloud zamiast całego magazynu; ustaw go w **Biblioteki zewnętrzne**. Biblioteka, której nie można zamontować, bo jej usługa nie jest zainstalowana lub brakuje folderu, jest pomijana i wskazywana przez kontrolę stanu, a Audiobookshelf działa dalej.',
+      'Wymaga StartOS 0.4.1 lub nowszego. Audiobookshelf widzi teraz tylko pliki użytkowników Nextcloud, a nie jego konfigurację; podfolder Nextcloud musi zaczynać się od data/.',
     fr_FR:
-      'Une bibliothèque externe peut désormais monter un seul dossier de NextExplorer, FileBrowser Quantum ou Nextcloud au lieu de tout son stockage ; définissez-le dans **Bibliothèques externes**. Une bibliothèque qui ne peut pas être montée, parce que son service n’est pas installé ou que le dossier manque, est ignorée et signalée par une vérification d’état pendant qu’Audiobookshelf continue de fonctionner.',
+      'Nécessite StartOS 0.4.1 ou une version ultérieure. Audiobookshelf ne voit désormais que les fichiers utilisateur de Nextcloud, et non sa configuration ; un sous-dossier Nextcloud doit commencer par data/.',
   },
   migrations: {
-    up: async ({ effects }) => {
-      const selected = z
-        .array(z.enum(libraries))
-        .catch([])
-        .parse(await storeJson.read((s) => s.externalLibraries).once())
-      await storeJson.merge(effects, {
-        externalLibraries: undefined,
-        ...Object.fromEntries(
-          selected.map((library) => [
-            library,
-            { selection: 'enabled', value: { subfolder: null } },
-          ]),
-        ),
-      })
-    },
+    up: async ({ effects }) => {},
     down: IMPOSSIBLE,
   },
 })

@@ -8,6 +8,7 @@ import {
   libraryTitles,
   metadataPath,
   mountLibrary,
+  outsideNextcloudData,
   podcastsPath,
   uiPort,
 } from './utils'
@@ -50,7 +51,14 @@ export const main = sdk.setupMain(async ({ effects }) => {
     const settings = store?.[library]
     if (settings?.selection !== 'enabled') continue
     const subfolder = settings.value.subfolder || null
-    if (await canMount(effects, library, subfolder)) {
+    if (subfolder && outsideNextcloudData(library, subfolder)) {
+      unmounted.push(
+        i18n(
+          'The folder "${subfolder}" is outside Nextcloud\'s data folder, so it is not mounted. Change it in External Libraries to a folder that starts with data/.',
+          { subfolder },
+        ),
+      )
+    } else if (await canMount(effects, library, subfolder)) {
       mounts = mountLibrary(mounts, library, subfolder)
     } else {
       unmounted.push(

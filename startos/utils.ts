@@ -28,6 +28,9 @@ export const libraryTitles = {
   nextcloud: i18n('Nextcloud'),
 }
 
+export const outsideNextcloudData = (library: Library, subpath: string) =>
+  library === 'nextcloud' && !/^data(\/|$)/.test(subpath)
+
 export const mountLibrary = (
   mounts: ReturnType<typeof sdk.Mounts.of>,
   library: Library,
@@ -52,11 +55,14 @@ export const mountLibrary = (
         readonly: true,
       })
     case 'nextcloud':
+      if (subpath && outsideNextcloudData(library, subpath)) {
+        throw new Error(`${subpath} is outside Nextcloud's data folder`)
+      }
       return mounts.mountDependency<typeof nextcloudManifest>({
         dependencyId: 'nextcloud',
         volumeId: 'nextcloud',
-        subpath,
-        mountpoint,
+        subpath: subpath ?? 'data',
+        mountpoint: subpath ? mountpoint : '/mnt/nextcloud/data',
         readonly: true,
       })
   }

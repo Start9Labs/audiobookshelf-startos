@@ -22,11 +22,11 @@ Audiobookshelf manages two writable libraries for you: **audiobooks** and **podc
 If your audiobooks or podcasts already live in NextExplorer, FileBrowser Quantum or Nextcloud, you can add them as read-only external libraries:
 
 1. Install NextExplorer (recommended), FileBrowser Quantum and/or Nextcloud first, and move your media into them.
-2. Run the **External Libraries** action and set each service that holds your media to **Enabled**. To let Audiobookshelf see only the folder that holds your media, rather than all of that service's storage, also enter that folder as its **Subfolder**. This matters most for Nextcloud, whose storage also holds its configuration and every account's files:
+2. Run the **External Libraries** action and set each service that holds your media to **Enabled**. To let Audiobookshelf see only the folder that holds your media, rather than all of that service's storage, also enter that folder as its **Subfolder**. For Nextcloud, Audiobookshelf only ever sees its user files, never its configuration; a subfolder limits it to one account's folder:
    - **NextExplorer** — start with the location, e.g. `Files/Audiobooks`.
    - **FileBrowser Quantum** — e.g. `Audiobooks`.
-   - **Nextcloud** — start with `data/`, then the account name and `files/`, e.g. `data/admin/files/Audiobooks`.
-3. Audiobookshelf restarts with that storage mounted read-only, at a fixed location inside Audiobookshelf — `/mnt/nextexplorer` for NextExplorer, `/mnt/filebrowser` for FileBrowser Quantum, `/mnt/nextcloud` for Nextcloud. With a subfolder, only that folder appears, at the same path it has in the service, e.g. `/mnt/nextcloud/data/admin/files/Audiobooks`.
+   - **Nextcloud** — start with `data/`, then the account name and `files/`, e.g. `data/admin/files/Audiobooks`. A subfolder outside `data/` is refused.
+3. Audiobookshelf restarts with that storage mounted read-only, at a fixed location inside Audiobookshelf — `/mnt/nextexplorer` for NextExplorer, `/mnt/filebrowser` for FileBrowser Quantum, `/mnt/nextcloud/data` for Nextcloud. With a subfolder, only that folder appears, at the same path it has in the service, e.g. `/mnt/nextcloud/data/admin/files/Audiobooks`.
 4. In Audiobookshelf, add a library (or edit an existing one) and use its **folder browser** to drill into the specific folder that holds that library's media. The paths are the same with or without a subfolder; with one, choose that folder or a folder inside it:
    - **NextExplorer** — each location is a folder, so start with the location name, e.g. `/mnt/nextexplorer/Files/Audiobooks`.
    - **FileBrowser Quantum** — your files are at the top level, e.g. `/mnt/filebrowser/Audiobooks`.
@@ -56,6 +56,6 @@ Your database, settings, cover art, and the **audiobooks** and **podcasts** libr
 
 ## Limitations
 
-- External libraries (`/mnt/nextexplorer`, `/mnt/filebrowser`, `/mnt/nextcloud`) are read-only. Audiobookshelf can scan and play them but cannot download podcasts into them or accept uploads there — those always go to its own `/audiobooks` and `/podcasts` libraries.
+- External libraries (`/mnt/nextexplorer`, `/mnt/filebrowser`, `/mnt/nextcloud/data`) are read-only. Audiobookshelf can scan and play them but cannot download podcasts into them or accept uploads there — those always go to its own `/audiobooks` and `/podcasts` libraries.
 - Each service can be limited to one subfolder. Media spread over several folders, such as several Nextcloud accounts, needs their common parent folder or the whole storage.
 - With a subfolder set, the folders above it, `/mnt/<service>` included, are empty placeholders rather than part of the service's storage. Point libraries at the subfolder or a folder inside it: anything saved into a placeholder is lost when Audiobookshelf restarts.
