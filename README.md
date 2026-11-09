@@ -83,11 +83,11 @@ The only configuration passed to the application is environment — `PORT`, `CON
 
 All three are optional and none is required to run: they appear only when enabled in [External Libraries](#actions).
 
-| Dependency          | Id             | Version range | Kind     | Volume mounted | Mount                                              |
-| ------------------- | -------------- | ------------- | -------- | -------------- | -------------------------------------------------- |
-| NextExplorer        | `nextexplorer` | `>=2.2.7:0`   | `exists` | `data`         | `/mnt/nextexplorer`, read-only                     |
-| FileBrowser Quantum | `filebrowser`  | `>=2.63.18:3` | `exists` | `data`         | `/mnt/filebrowser`, read-only                      |
-| Nextcloud           | `nextcloud`    | `>=33.0.6:1`  | `exists` | `nextcloud`    | `data` subpath at `/mnt/nextcloud/data`, read-only |
+| Dependency          | Id             | Version range               | Kind     | Volume mounted | Mount                                              |
+| ------------------- | -------------- | --------------------------- | -------- | -------------- | -------------------------------------------------- |
+| NextExplorer        | `nextexplorer` | `>=2.2.7:0`                 | `exists` | `data`         | `/mnt/nextexplorer`, read-only                     |
+| FileBrowser Quantum | `filebrowser`  | `>=#quantum:2.0.2-stable:3` | `exists` | `data`         | `/mnt/filebrowser`, read-only                      |
+| Nextcloud           | `nextcloud`    | `>=33.0.6:1`                | `exists` | `nextcloud`    | `data` subpath at `/mnt/nextcloud/data`, read-only |
 
 Each is declared only while it is enabled, and none has health checks. Only the volume is needed, so none of them has to be running for Audiobookshelf to start and read it. NextExplorer's volume root holds one directory per location, so its media sits under `/mnt/nextexplorer/<location>/`. Nextcloud's volume is its whole web root, including `config/config.php` with its database password and instance secret, so only its `data` directory is mounted; each account's files sit under `/mnt/nextcloud/data/<username>/files/`.
 
@@ -202,7 +202,7 @@ startos_managed_env_vars:
   - METADATA_PATH
 dependencies: # optional, kind "exists"; whole volume or one subfolder, mounted read-only when enabled
   - nextexplorer # >=2.2.7:0; /mnt/nextexplorer
-  - filebrowser # >=2.63.18:3; /mnt/filebrowser
+  - filebrowser # >=#quantum:2.0.2-stable:3; /mnt/filebrowser
   - nextcloud # >=33.0.6:1; data subpath at /mnt/nextcloud/data
 interfaces:
   ui: { type: ui, port: 80 }
