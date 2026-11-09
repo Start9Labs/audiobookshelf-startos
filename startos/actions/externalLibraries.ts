@@ -1,7 +1,7 @@
 import { Library, libraries, storeJson } from '../fileModels/store.json'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
-import { canMount, libraryTitles } from '../utils'
+import { canMount, libraryTitles, outsideNextcloudData } from '../utils'
 
 const { InputSpec, Value, Variants } = sdk
 
@@ -10,6 +10,7 @@ const libraryUnion = (
   description: string,
   subfolderDescription: string,
   placeholder: string,
+  patterns: { regex: string; description: string }[] = [],
 ) =>
   Value.union({
     name: libraryTitles[library],
@@ -33,6 +34,7 @@ const libraryUnion = (
                   'Must be a relative path, such as Audiobooks, with no leading / and no .. segments',
                 ),
               },
+              ...patterns,
             ],
           }),
         }),
@@ -62,12 +64,20 @@ export const inputSpec = InputSpec.of({
   nextcloud: libraryUnion(
     'nextcloud',
     i18n(
-      'When enabled, its storage appears at /mnt/nextcloud, with one folder per account under /mnt/nextcloud/data.',
+      'When enabled, its user files appear at /mnt/nextcloud/data, one folder per account.',
     ),
     i18n(
-      "Mount only this folder, e.g. data/admin/files/Audiobooks for the account named admin, which then appears at /mnt/nextcloud/data/admin/files/Audiobooks. Leave empty to mount all of Nextcloud's storage, including its configuration.",
+      "Mount only this folder, e.g. data/admin/files/Audiobooks for the account named admin, which then appears at /mnt/nextcloud/data/admin/files/Audiobooks. It must start with data/. Leave empty to mount every account's files.",
     ),
     'data/admin/files/Audiobooks',
+    [
+      {
+        regex: '^data(/.*)?$',
+        description: i18n(
+          "Must be inside Nextcloud's data folder, starting with data/, such as data/admin/files/Audiobooks",
+        ),
+      },
+    ],
   ),
 })
 
@@ -99,6 +109,13 @@ export const externalLibraries = sdk.Action.withInput(
       const settings = input[library]
       const subfolder =
         settings.selection === 'enabled' && settings.value.subfolder
+      if (subfolder && outsideNextcloudData(library, subfolder)) {
+        throw new Error(
+          i18n(
+            "Must be inside Nextcloud's data folder, starting with data/, such as data/admin/files/Audiobooks",
+          ),
+        )
+      }
       if (subfolder && !(await canMount(effects, library, subfolder))) {
         throw new Error(
           i18n(
