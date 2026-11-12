@@ -10,7 +10,7 @@ export const manifest = setupManifest({
   marketingUrl: 'https://www.audiobookshelf.org/',
   donationUrl: null,
   description: { short, long },
-  volumes: ['config', 'metadata', 'audiobooks', 'podcasts'],
+  volumes: ['config', 'metadata', 'audiobooks', 'podcasts', 'public'],
   images: {
     audiobookshelf: {
       // Built from ./Dockerfile (FROM ghcr.io/advplyr/audiobookshelf:2.37.2) to

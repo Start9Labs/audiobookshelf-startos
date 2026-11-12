@@ -1,6 +1,6 @@
 # Updating the upstream version
 
-This package wraps [Audiobookshelf](https://github.com/advplyr/audiobookshelf). It builds a patched image from the official `ghcr.io/advplyr/audiobookshelf` image (see [`Dockerfile`](Dockerfile) and the "What Is Changed from Upstream" section of [README.md](README.md)).
+This package wraps [Audiobookshelf](https://github.com/advplyr/audiobookshelf). It builds a patched image from the official `ghcr.io/advplyr/audiobookshelf` image (see [`Dockerfile`](Dockerfile) and [Image and Container Runtime](README.md#image-and-container-runtime)).
 
 ## Determining the upstream version
 
@@ -20,6 +20,7 @@ The current pin lives in [`Dockerfile`](Dockerfile) at the `FROM ghcr.io/advplyr
    home. Re-verify both patches on every bump — if an anchor is gone, find the new one
    rather than relaxing the check to get a green build.
 2. If the database schema, password hashing (`server/auth/LocalAuthStrategy.js`), or the `users` table changed upstream, re-verify the **Reset Admin Password** action against the new image.
+3. Re-verify `assets/integrations.cjs` against the compiled modules under `/app/dist-server/server`: `TokenManager.initTokenSecret` must run after database initialization and before the listener opens; first-root creation must trigger the user hook after transaction commit. Confirm the user/API-key model fields, signing helper and scan authorization. Exercise first setup, enabling on an existing install, unchanged restarts, disable/re-enable revocation and root-password preservation.
 
 ## If a client patch assertion fails
 
