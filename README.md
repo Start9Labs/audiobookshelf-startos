@@ -9,7 +9,7 @@
 > upstream documentation is accurate and fully applicable — see the
 > Documentation section of `instructions.md` for links.
 
-[Audiobookshelf](https://github.com/advplyr/audiobookshelf) is a self-hosted audiobook and podcast server. This package builds a patched image with the web client's calls to third-party origins removed, splits its storage across four volumes, and can mount another service's files in as a read-only library.
+[Audiobookshelf](https://github.com/advplyr/audiobookshelf) is a self-hosted audiobook and podcast server. This package builds a patched image with the web client's calls to third-party origins removed, splits its storage across five volumes, and can mount another service's files in as a read-only library.
 
 - **Upstream repo:** <https://github.com/advplyr/audiobookshelf>
 - **Wrapper repo:** <https://github.com/Start9Labs/audiobookshelf-startos>
@@ -41,18 +41,20 @@ The image is the upstream image with two patches applied on top, because upstrea
 | ------------- | ----------------------------------------------------------------------- |
 | Image         | Built from `Dockerfile`, `FROM ghcr.io/advplyr/audiobookshelf`          |
 | Architectures | x86_64, aarch64                                                         |
-| Entrypoint    | Upstream default                                                        |
+| Entrypoint    | Upstream `tini`, launching Node with the integration preload             |
 | Subcontainer  | `audiobookshelf-sub` — the `primary` daemon, and the one to `attach` to |
 
 The two patches: the PWA service worker's Workbox import is repointed from a public CDN to a copy vendored into the image, and the client's release check against GitHub is repointed at a static same-origin file that always reports the running version as current. Each patch first asserts that the string it is about to rewrite is present, so an upstream bump that reshapes the bundle fails the build rather than silently shipping an unpatched client. Two further outbound calls need no patch: the Cast SDK is gated behind a server setting that defaults off, and upstream's own image already suppresses the server-side binary downloads.
 
 The image upgrades Alpine's `ca-certificates` and `ca-certificates-bundle` at build time. `NODE_OPTIONS=--use-openssl-ca` makes Node use that system trust store instead of its bundled roots.
 
+`assets/integrations.cjs` runs in the application's own Node process, using its existing Sequelize models and connection pool. It preserves upstream module-load order, provisions after token-secret initialization before the listener opens, and handles first-root creation after its transaction commits. It never starts a second database writer. Provisioning failures remove the export and log a diagnostic without preventing the web app from running.
+
 The Reset Admin Password action runs in a short-lived `reset-admin` subcontainer from the same image, with only the config volume mounted.
 
 ## Volume and Data Layout
 
-Four volumes, split so that a backup, a media move, or a permissions problem touches one concern at a time.
+Five volumes, split so that a backup, a media move, or a permissions problem touches one concern at a time.
 
 | Volume       | Mount Point   | Purpose                                                           |
 | ------------ | ------------- | ----------------------------------------------------------------- |
@@ -60,12 +62,13 @@ Four volumes, split so that a backup, a media move, or a permissions problem tou
 | `metadata`   | `/metadata`   | Cover art, cached metadata, and generated artifacts               |
 | `audiobooks` | `/audiobooks` | The writable audiobook library — uploads land here                |
 | `podcasts`   | `/podcasts`   | The writable podcast library — subscriptions download here        |
+| `public`     | `/public`     | `api-key`, an administrative integration credential while enabled |
 
 When an external library is connected, that service's storage appears as a further mount, read-only: `/mnt/nextexplorer`, `/mnt/filebrowser` or `/mnt/nextcloud/data` (Nextcloud's `data` directory only), or only the subfolder set for it, at its own path below that. Which folder inside it becomes a library is chosen in Audiobookshelf's own settings, not here.
 
 ## File Models
 
-One model, holding one setting: which other services are mounted in as read-only libraries, and which folder of each.
+One model holds external-library selections and the `integrationsEnabled` opt-in flag, which defaults to false.
 
 | File                 | Format | Modelled                | Written by                                    |
 | -------------------- | ------ | ----------------------- | --------------------------------------------- |
@@ -75,9 +78,11 @@ One model, holding one setting: which other services are mounted in as read-only
 
 The setting has reach beyond its own file: `main` reads it to decide which dependency volumes, or folders of them, to mount, and `dependencies.ts` reads it to decide which optional dependencies are enabled. Both hold it in a reactive `const`, so changing the selection or a subfolder restarts the service with the new mounts.
 
-**The application's own database is not a file model.** `absdatabase.sqlite` on the config volume holds users, libraries, listening progress, and every server setting; the package neither reads nor writes it in normal operation. The one exception is Reset Admin Password, which edits it directly while the service is stopped.
+**The application's own database is not a file model.** `absdatabase.sqlite` holds users, libraries, listening progress and settings. The integration preload uses the running application's models for its reserved account/key, not an external database connection. Reset Admin Password edits the database directly only while the service is stopped.
 
-The only configuration passed to the application is environment — `PORT`, `CONFIG_PATH`, `METADATA_PATH` — and it is the same on every start.
+The preload owns `/config/startos-integrations.json`, containing generated account/key IDs and provisioning state. It writes this file atomically before publishing a credential. This generated lifecycle state is not a user configuration model. IDs survive restarts and restores, preventing duplicate users or keys.
+
+Environment selects `PORT`, `CONFIG_PATH`, `METADATA_PATH` and the preload's `STARTOS_INTEGRATIONS_ENABLED`, `STARTOS_INTEGRATION_STATE_PATH`, `STARTOS_PUBLIC_API_KEY_PATH` and generated, unexported `STARTOS_INTEGRATION_PASSWORD`. The preload removes the password from the process environment after loading it.
 
 ## Dependencies
 
@@ -97,7 +102,7 @@ The mounts are `readonly: true`, so Audiobookshelf cannot write to them even if 
 
 ## Network Access and Interfaces
 
-One interface, serving both the web app and the API the mobile apps use. Nothing is exported for dependent services.
+One interface serves the web app and the API used by mobile apps and dependent services. When Service Integrations is enabled, dependents can mount `public` read-only and consume `api-key`; neither the config volume nor root credentials are exported.
 
 | Interface | Id   | Type | Port | Description                              |
 | --------- | ---- | ---- | ---- | ---------------------------------------- |
@@ -107,7 +112,7 @@ The port is bound on the `ui-multi` MultiHost and is not masked.
 
 ## Installation and First-Run Flow
 
-Nothing is generated or bootstrapped at install and no task is raised: the service starts immediately, and account creation happens inside the application on first visit, exactly as upstream.
+The service starts immediately and root-account creation happens inside the application on first visit, exactly as upstream. Service Integrations defaults off; enabling it provisions the dedicated credential automatically once the root account exists, without changing that account's password or sessions. Enabling it before first setup works without an additional restart after root creation.
 
 The one thing worth knowing is that this state is visible from outside the app. A dedicated health check reports `loading` with "Open the Web UI to create your admin account" until the root account exists, so a freshly installed server that looks unhealthy is usually just waiting for that first visit. See [Health Checks](#health-checks).
 
@@ -115,7 +120,7 @@ Connecting an external library, if wanted, comes later and in this order: instal
 
 ## Actions
 
-Two actions, both user-facing.
+Three actions, all user-facing.
 
 ### External Libraries
 
@@ -127,6 +132,16 @@ Mounts NextExplorer's, FileBrowser Quantum's or Nextcloud's storage, or one subf
 - **Cost:** seconds, then a restart — the mounts can only change when the container is recreated.
 - **Repeat safety:** safe to re-run; the form is pre-filled with the current settings and saved as a whole, so setting a service to Disabled removes its mount and clearing a subfolder mounts the whole volume again.
 - **What happens next:** the storage appears at a fixed path inside the container, and a subfolder at its own path below it. Nothing becomes a library until you point one at a folder under it in Audiobookshelf's own settings — this action connects storage, it does not create libraries.
+
+### Service Integrations
+
+Opt in to automatic API credentials for connected StartOS services, such as Shelfarr. The form and cross-service tasks use `integrationsEnabled`. Saving restarts Audiobookshelf; disabling also immediately clears the published credential.
+
+- **Identity and scope:** a reserved `startos-integrations-<uuid>` non-root admin account, with one API key named `StartOS Service Integrations`. Upstream requires the admin role for scans. Download, update, delete, upload and e-reader permission flags are disabled, but this is **not a scan-only security boundary**: the admin role still permits user/key management. All libraries are accessible. Every consumer of this shared key receives that administrative access.
+- **Ownership:** the package owns this account's role, permissions, active state and keys, reapplying them at startup. Manage access with this action, not the web app; do not reuse this account for other purposes. Human users and keys remain untouched.
+- **Credential:** the upstream API-key model signs a non-expiring, revocable API key. The preload atomically publishes it at `/public/api-key` and preserves the token on unchanged restarts. It never exports root credentials, signing secrets, a legacy user token or the integration account's random password.
+- **Disable:** before the next listener opens, the preload disables the integration account and deletes all its API keys. Re-enabling creates a replacement key; old exported tokens remain invalid. While stopped, no API is available, and revocation runs before the next start accepts requests.
+- **Recovery:** a deleted/revoked managed key is replaced on restart; a changed signing secret regenerates the export. Consumers must watch the file reactively. A malformed private state file or provisioning error removes the export and appears in logs rather than silently granting a human account's access.
 
 ### Reset Admin Password
 
@@ -144,13 +159,14 @@ None. This package raises no tasks, so the service is never held on a prompt and
 
 ## Health Checks
 
-Two checks, and the second exists to make a normal state legible rather than to detect a fault. A third appears only when an enabled external library cannot be mounted.
+Two checks, and the second exists to make a normal state legible rather than to detect a fault. A third appears only when an enabled external library cannot be mounted, and an integration check appears while Service Integrations is enabled.
 
 | Check                | Displayed            | Method                                               | Grace Period |
 | -------------------- | -------------------- | ---------------------------------------------------- | ------------ |
 | `primary`            | "Web Interface"      | HTTP `GET /healthcheck` on the UI port               | SDK default  |
 | `initial-setup`      | "Initial Setup"      | The application's `/status`, read for `isInit`       | —            |
 | `external-libraries` | "External Libraries" | Each enabled service test-mounted, before the daemon | 0            |
+| `integrations` | "Service Integrations" | Authenticate `GET /api/libraries` using the exported key | SDK default |
 
 **`primary` failing** means the server is not answering — read the service logs for a database or startup error.
 
@@ -158,9 +174,11 @@ Two checks, and the second exists to make a normal state legible rather than to 
 
 **`external-libraries` is present only when it fails.** At each start, `main` test-mounts every enabled service, its subfolder if one is set, in a throwaway subcontainer. One that fails is left out of the mount set and named by the check: as not installed when even its whole volume will not mount, which also covers a volume that is missing, and otherwise as a subfolder not found, typically one renamed or deleted in that service after it was set. A stored Nextcloud subfolder outside `data/` is never mounted and is named as such. Audiobookshelf itself starts normally, without that mount. The log lines before the check carry the mount error. Installing the service or creating the folder and then restarting, or changing its setting in External Libraries, removes the check.
 
+**`integrations`** reports loading until the root account and credential exist, success when the exported key authenticates, or failure if the API rejects it. Complete first setup or inspect logs and restart after a provisioning failure.
+
 ## Backups and Restore
 
-All four volumes are copied wholesale — `sdk.Backups.ofVolumes('config', 'metadata', 'audiobooks', 'podcasts')`. There is no dump step and nothing is excluded, which means **the media is in the backup**: an audiobook and podcast collection is usually the largest thing on the server, and the backup is sized accordingly.
+All five volumes are copied wholesale — `sdk.Backups.ofVolumes('config', 'metadata', 'audiobooks', 'podcasts', 'public')`. There is no dump step and nothing is excluded, which means **the media is in the backup**: an audiobook and podcast collection is usually the largest thing on the server, and the backup is sized accordingly.
 
 - **Included:** the database with users, libraries and listening progress; cover art and cached metadata; and every file in the two writable libraries.
 - **Not included:** anything in a connected external library. That storage belongs to NextExplorer, FileBrowser Quantum or Nextcloud and is covered by that service's own backup, not this one's.
@@ -194,12 +212,17 @@ volumes:
   metadata: /metadata
   audiobooks: /audiobooks
   podcasts: /podcasts
+  public: /public # read-only consumers use api-key when integrations are enabled
 file_models:
   - /config/store.json
 startos_managed_env_vars:
   - PORT
   - CONFIG_PATH
   - METADATA_PATH
+  - STARTOS_INTEGRATIONS_ENABLED
+  - STARTOS_INTEGRATION_STATE_PATH
+  - STARTOS_PUBLIC_API_KEY_PATH
+  - STARTOS_INTEGRATION_PASSWORD
 dependencies: # optional, kind "exists"; whole volume or one subfolder, mounted read-only when enabled
   - nextexplorer # >=2.2.7:0; /mnt/nextexplorer
   - filebrowser # >=#quantum:2.0.2-stable:3; /mnt/filebrowser
@@ -209,9 +232,11 @@ interfaces:
 actions:
   - external-libraries
   - reset-admin-password # only-stopped
+  - service-integrations
 tasks: []
 health_checks:
   - primary # displayed "Web Interface"
   - initial-setup # displayed "Initial Setup"; loading until the root account exists
   - external-libraries # displayed "External Libraries"; present only when an enabled library could not be mounted
+  - integrations # displayed "Service Integrations"; present while enabled
 ```

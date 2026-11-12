@@ -1,3 +1,4 @@
+import { utils } from '@start9labs/start-sdk'
 import { libraries, storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
@@ -6,10 +7,15 @@ import {
   canMount,
   configPath,
   libraryTitles,
+  integrationStatePath,
+  integrationStatusScript,
   metadataPath,
   mountLibrary,
   outsideNextcloudData,
+  passwordOpts,
   podcastsPath,
+  publicApiKeyPath,
+  publicPath,
   uiPort,
 } from './utils'
 
@@ -21,6 +27,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
   const store = await storeJson.read().const(effects)
 
   let mounts = sdk.Mounts.of()
+    .mountAssets({ subpath: null, mountpoint: '/assets', type: 'directory' })
+    .mountVolume({
+      volumeId: 'public',
+      subpath: null,
+      mountpoint: publicPath,
+      readonly: false,
+    })
     .mountVolume({
       volumeId: 'config',
       subpath: null,
@@ -86,11 +99,22 @@ export const main = sdk.setupMain(async ({ effects }) => {
     .addDaemon('primary', {
       subcontainer,
       exec: {
-        command: sdk.useEntrypoint(),
+        command: sdk.useEntrypoint([
+          'node',
+          '--require',
+          '/assets/integrations.cjs',
+          'dist-server/index.js',
+        ]),
         env: {
           PORT: String(uiPort),
           CONFIG_PATH: configPath,
           METADATA_PATH: metadataPath,
+          STARTOS_INTEGRATIONS_ENABLED: String(
+            store?.integrationsEnabled ?? false,
+          ),
+          STARTOS_INTEGRATION_STATE_PATH: integrationStatePath,
+          STARTOS_PUBLIC_API_KEY_PATH: publicApiKeyPath,
+          STARTOS_INTEGRATION_PASSWORD: utils.getDefaultString(passwordOpts),
         },
       },
       ready: {
@@ -132,6 +156,43 @@ export const main = sdk.setupMain(async ({ effects }) => {
       },
       requires: ['primary'],
     })
+    .addHealthCheck('integrations', () =>
+      store?.integrationsEnabled
+        ? {
+            ready: {
+              display: i18n('Service Integrations'),
+              fn: async () => {
+                const result = await subcontainer.exec([
+                  'node',
+                  '-e',
+                  integrationStatusScript,
+                  publicApiKeyPath,
+                  String(uiPort),
+                ])
+                return result.exitCode === 0
+                  ? {
+                      result: 'success',
+                      message: i18n('The integration API credential is ready'),
+                    }
+                  : result.exitCode === 2
+                    ? {
+                        result: 'loading',
+                        message: i18n(
+                          'Complete initial setup in the Web UI. Check service logs if the integration credential remains unavailable.',
+                        ),
+                      }
+                    : {
+                        result: 'failure',
+                        message: i18n(
+                          'The integration API credential is not working. Check service logs and restart Audiobookshelf.',
+                        ),
+                      }
+              },
+            },
+            requires: ['primary'],
+          }
+        : null,
+    )
     .addHealthCheck('external-libraries', () =>
       unmounted.length
         ? {
