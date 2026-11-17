@@ -45,6 +45,12 @@ const dict = {
   'When enabled, its user files appear at /mnt/nextcloud/data, one folder per account.': 38,
   "Must be inside Nextcloud's data folder, starting with data/, such as data/admin/files/Audiobooks": 39,
   'The folder "${subfolder}" is outside Nextcloud\'s data folder, so it is not mounted. Change it in External Libraries to a folder that starts with data/.': 40,
+  'Service Integrations': 41,
+  'Automatically provide a dedicated API credential to connected StartOS services. Library scans require administrator access. The package owns this non-root account and key; manage their access here, not in the web app. Changes restart Audiobookshelf.': 42,
+  'Enable Service Integrations': 43,
+  'The integration API credential is ready': 44,
+  'Complete initial setup in the Web UI. Check service logs if the integration credential remains unavailable.': 45,
+  'The integration API credential is not working. Check service logs and restart Audiobookshelf.': 46,
 } as const
 
 /**

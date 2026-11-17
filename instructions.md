@@ -39,6 +39,14 @@ If an enabled service is not installed, or its subfolder is later renamed or del
 > [!NOTE]
 > Reading Nextcloud files directly has limits: media kept in **Group Folders** or **External Storage** is not under `data/<username>/files/`, and if Nextcloud's **server-side encryption** is enabled the files on disk are encrypted and Audiobookshelf cannot read them. For those cases, use NextExplorer instead, or copy the media into Audiobookshelf's own `/audiobooks` and `/podcasts` libraries.
 
+### Service integrations (optional)
+
+Services such as Shelfarr can connect without copying an API token. Complete Audiobookshelf’s initial setup, then enable **Service Integrations** when prompted by the connecting service, or through Audiobookshelf’s StartOS actions.
+
+This creates a dedicated non-root administrator account and shares its API key with connected services. Audiobookshelf requires administrator access for library scans; this is not a scan-only credential. Only enable it for services you trust with administrative API access. Your root password and root token are never shared or changed.
+
+The account named `startos-integrations-…` and its key are package-managed: use **Service Integrations**, not the web app, to control them. Disabling removes the shared credential and revokes its keys on restart. Re-enabling creates a replacement; connected services pick it up automatically. The **Service Integrations** health check confirms when the credential works.
+
 ## Using Audiobookshelf
 
 ### Web interface
@@ -48,6 +56,7 @@ The first screen is the account-creation prompt on a fresh install, and the logi
 ### Actions
 
 - **External Libraries** — connect NextExplorer, FileBrowser Quantum or Nextcloud, or one folder of each, as read-only libraries that Audiobookshelf scans and plays. Audiobookshelf never writes to them, so podcast downloads and uploads still go to its own libraries.
+- **Service Integrations** — enable or revoke automatically managed administrative API access for connected StartOS services. Saving restarts Audiobookshelf.
 - **Reset Admin Password** — if you are locked out of the root admin account, stop the service and run this action. It generates a new random password, shows it to you, and signs that account out everywhere, so anyone still logged in has to sign in again with the new password. Day-to-day password changes are done in the web app under your account settings.
 
 ### Backups

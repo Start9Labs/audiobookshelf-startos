@@ -9,13 +9,17 @@ const library = z
   // merge mutates what it parses, so each fallback must be a fresh object
   .catch(() => ({ selection: 'disabled' as const, value: { subfolder: null } }))
 
-const shape = z.looseObject({
+const libraryShape = z.looseObject({
   nextexplorer: library,
   filebrowser: library,
   nextcloud: library,
 })
 
-export const libraries = shape.keyof().options
+const shape = libraryShape.extend({
+  integrationsEnabled: z.boolean().catch(false),
+})
+
+export const libraries = libraryShape.keyof().options
 
 export type Library = (typeof libraries)[number]
 

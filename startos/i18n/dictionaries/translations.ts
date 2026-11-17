@@ -2,6 +2,12 @@ import { LangDict } from './default'
 
 export default {
   es_ES: {
+    41: 'Integraciones de servicios',
+    42: 'Proporciona automáticamente una credencial API dedicada a servicios StartOS conectados. Escanear bibliotecas requiere acceso de administrador. El paquete gestiona esta cuenta no raíz y su clave; controla el acceso aquí, no en la aplicación web. Los cambios reinician Audiobookshelf.',
+    43: 'Activar integraciones de servicios',
+    44: 'La credencial API de integración está lista',
+    45: 'Completa la configuración inicial en la interfaz web. Consulta los registros si la credencial de integración sigue sin estar disponible.',
+    46: 'La credencial API de integración no funciona. Consulta los registros y reinicia Audiobookshelf.',
     0: '¡Iniciando Audiobookshelf!',
     1: 'Interfaz web',
     2: 'La interfaz web está lista',
@@ -41,6 +47,12 @@ export default {
     40: 'La carpeta "${subfolder}" está fuera de la carpeta de datos de Nextcloud, así que no se monta. Cámbiala en Bibliotecas externas por una carpeta que empiece por data/.',
   },
   de_DE: {
+    41: 'Dienstintegrationen',
+    42: 'Stellt verbundenen StartOS-Diensten automatisch eigene API-Zugangsdaten bereit. Bibliotheksscans erfordern Administratorzugriff. Das Paket verwaltet dieses Nicht-Root-Konto und seinen Schlüssel; Zugriff hier statt in der Web-App verwalten. Änderungen starten Audiobookshelf neu.',
+    43: 'Dienstintegrationen aktivieren',
+    44: 'Die API-Zugangsdaten für Integrationen sind bereit',
+    45: 'Die Ersteinrichtung in der Weboberfläche abschließen. Dienstprotokolle prüfen, falls die Integrationszugangsdaten weiterhin fehlen.',
+    46: 'Die API-Zugangsdaten für Integrationen funktionieren nicht. Dienstprotokolle prüfen und Audiobookshelf neu starten.',
     0: 'Starte Audiobookshelf!',
     1: 'Weboberfläche',
     2: 'Die Weboberfläche ist bereit',
@@ -80,6 +92,12 @@ export default {
     40: 'Der Ordner "${subfolder}" liegt außerhalb des Datenordners von Nextcloud und wird daher nicht eingebunden. Ändern Sie ihn unter Externe Bibliotheken in einen Ordner, der mit data/ beginnt.',
   },
   pl_PL: {
+    41: 'Integracje usług',
+    42: 'Automatycznie udostępnia osobne dane API połączonym usługom StartOS. Skanowanie bibliotek wymaga uprawnień administratora. Pakiet zarządza tym kontem innym niż root i jego kluczem; zarządzaj dostępem tutaj, nie w aplikacji WWW. Zmiany uruchamiają Audiobookshelf ponownie.',
+    43: 'Włącz integracje usług',
+    44: 'Dane API integracji są gotowe',
+    45: 'Dokończ wstępną konfigurację w interfejsie WWW. Jeśli dane integracji nadal są niedostępne, sprawdź dzienniki usługi.',
+    46: 'Dane API integracji nie działają. Sprawdź dzienniki i uruchom Audiobookshelf ponownie.',
     0: 'Uruchamianie Audiobookshelf!',
     1: 'Interfejs webowy',
     2: 'Interfejs webowy jest gotowy',
@@ -119,6 +137,12 @@ export default {
     40: 'Folder "${subfolder}" znajduje się poza folderem danych Nextcloud, więc nie jest montowany. Zmień go w Biblioteki zewnętrzne na folder zaczynający się od data/.',
   },
   fr_FR: {
+    41: 'Intégrations de services',
+    42: 'Fournit automatiquement un identifiant API dédié aux services StartOS connectés. Les analyses des bibliothèques exigent un accès administrateur. Le paquet gère ce compte non racine et sa clé ; gérez leur accès ici, pas dans l’application web. Les modifications redémarrent Audiobookshelf.',
+    43: 'Activer les intégrations de services',
+    44: 'L’identifiant API d’intégration est prêt',
+    45: 'Terminez la configuration initiale dans l’interface web. Consultez les journaux si l’identifiant d’intégration reste indisponible.',
+    46: 'L’identifiant API d’intégration ne fonctionne pas. Consultez les journaux et redémarrez Audiobookshelf.',
     0: 'Démarrage d’Audiobookshelf !',
     1: 'Interface web',
     2: 'L’interface web est prête',

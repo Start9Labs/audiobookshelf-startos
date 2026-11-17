@@ -12,6 +12,20 @@ export const metadataPath = '/metadata'
 export const audiobooksPath = '/audiobooks'
 export const podcastsPath = '/podcasts'
 export const dbPath = `${configPath}/absdatabase.sqlite`
+export const integrationStatePath = `${configPath}/startos-integrations.json`
+export const publicPath = '/public'
+export const publicApiKeyFile = 'api-key'
+export const publicApiKeyPath = `${publicPath}/${publicApiKeyFile}`
+
+export const integrationStatusScript = `
+const fs = require('node:fs');
+const key = fs.existsSync(process.argv[1]) && fs.readFileSync(process.argv[1], 'utf8').trim();
+if (!key) process.exit(2);
+fetch('http://127.0.0.1:' + process.argv[2] + '/api/libraries', {
+  headers: { Authorization: 'Bearer ' + key },
+  signal: AbortSignal.timeout(5000),
+}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1));
+`
 
 export const passwordOpts = { charset: 'a-z,A-Z,0-9', len: 24 }
 
