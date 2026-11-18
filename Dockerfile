@@ -29,7 +29,7 @@ RUN npm pack workbox-cdn@5.1.4 \
  && cp package/workbox/workbox-sw.js package/workbox/*.prod.js /workbox/
 
 # --- Patched Audiobookshelf ---
-FROM ghcr.io/advplyr/audiobookshelf:2.37.2
+FROM ghcr.io/advplyr/audiobookshelf:2.38.0
 
 # The base image's CA store is only as current as its last release.
 RUN apk add --no-cache --upgrade ca-certificates ca-certificates-bundle
